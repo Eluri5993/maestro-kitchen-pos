@@ -1663,9 +1663,6 @@ function getLocalRecurringBills() {
   return [];
 }
 
-function saveRecurringBillsToLocal(data) {
-  localStorage.setItem("maestro_recurring_bills", JSON.stringify(data));
-}
 
 // ----------------------------------------------------
 // TABLE MANAGEMENT VIEW
