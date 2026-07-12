@@ -2,14 +2,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// REPLACE THESE DUMMY VALUES WITH YOUR ACTUAL FIREBASE PROJECT KEYS
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCjlR_DL_i5L8D9tO82pdyBdob0WsrD_7M",
   authDomain: "maestro-kitchen-pos.firebaseapp.com",
   projectId: "maestro-kitchen-pos",
-  storageBucket: "maestro-kitchen-pos.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  storageBucket: "maestro-kitchen-pos.firebasestorage.app",
+  messagingSenderId: "385416907121",
+  appId: "1:385416907121:web:3d833cb46c9b6d36e0ced0"
 };
 
 const app = initializeApp(firebaseConfig);
