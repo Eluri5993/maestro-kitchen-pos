@@ -1,9 +1,9 @@
 # Set console encoding to UTF-8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-Write-Host "=============================================" -ForegroundColor Gold
-Write-Host "  MAESTRO KITCHEN POS - DEPLOYMENT SCRIPT    " -ForegroundColor Gold
-Write-Host "=============================================" -ForegroundColor Gold
+Write-Host "=============================================" -ForegroundColor Yellow
+Write-Host "  MAESTRO KITCHEN POS - DEPLOYMENT SCRIPT    " -ForegroundColor Yellow
+Write-Host "=============================================" -ForegroundColor Yellow
 
 # Check if git is initialized
 if (!(Test-Path ".git")) {
@@ -33,5 +33,5 @@ git push -u origin main
 Write-Host "---------------------------------------------"
 Write-Host "Deployment steps completed successfully!" -ForegroundColor Green
 Write-Host "To host online, go to:" -ForegroundColor Green
-Write-Host "https://github.com/Eluri5993/maestro-kitchen-pos/settings/pages" -ForegroundColor Gold
+Write-Host "https://github.com/Eluri5993/maestro-kitchen-pos/settings/pages" -ForegroundColor Yellow
 Write-Host "Under 'Branch', select 'main' and click Save. Your site will be live shortly!" -ForegroundColor Green
