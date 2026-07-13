@@ -85,6 +85,24 @@ document.addEventListener("DOMContentLoaded", () => {
   initAuth();
   initUsersView();
   
+  // Global click listeners
+  document.addEventListener("click", (e) => {
+    // 1. Show native date picker on click/focus anywhere on input[type="date"]
+    if (e.target && e.target.tagName === "INPUT" && e.target.type === "date") {
+      try {
+        e.target.showPicker();
+      } catch (err) {
+        console.warn("showPicker is not supported or blocked:", err);
+      }
+    }
+
+    // 2. Click outside modal overlay to close it
+    if (e.target && e.target.classList.contains("modal-overlay")) {
+      e.target.classList.remove("active");
+      e.target.style.display = "none";
+    }
+  });
+
   // Initial Icon Render
   lucide.createIcons();
 });
@@ -987,6 +1005,7 @@ function initOrdersView() {
         orders.splice(orderIndex, 1);
         saveOrdersToLocal(orders);
 
+        document.getElementById("modal-order-detail").style.display = "none";
         document.getElementById("modal-order-detail").classList.remove("active");
         renderOrdersList();
         showToast(`Order #${modalId} refunded and deleted successfully`, "success");
@@ -1184,6 +1203,7 @@ function openOrderDetailModal(orderId) {
     </div>
   `;
 
+  modal.style.display = "flex";
   modal.classList.add("active");
   if (window.lucide) window.lucide.createIcons();
 }
@@ -2506,7 +2526,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// HISTORICAL SALES LOGIC (ITEMIZED)
+// HISTORICAL SALES LOGIC (ITEMIZED MODAL)
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   const histForm = document.getElementById("hist-sales-form");
@@ -2515,6 +2535,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const itemsContainer = document.getElementById("hist-items-container");
   const addItemBtn = document.getElementById("hist-add-item-btn");
   const totalDisplay = document.getElementById("hist-total-display");
+  const modal = document.getElementById("modal-historical-sales");
+
+  const btnManualSales = document.getElementById("btn-manual-sales");
+  if (btnManualSales) {
+    btnManualSales.addEventListener("click", () => {
+      if (modal) {
+        modal.style.display = "flex";
+        modal.classList.add("active");
+        
+        histForm.reset();
+        itemsContainer.innerHTML = "";
+        addHistItemRow();
+        calculateHistTotal();
+        
+        const dateInput = document.getElementById("hist-sales-date");
+        if (dateInput) {
+          dateInput.value = new Date().toISOString().substring(0, 10);
+        }
+      }
+    });
+  }
   
   function calculateHistTotal() {
     let total = 0;
@@ -2524,22 +2565,37 @@ document.addEventListener("DOMContentLoaded", () => {
       const price = parseFloat(row.querySelector(".hist-price").value) || 0;
       total += (qty * price);
     });
-    totalDisplay.innerText = `?${total.toFixed(2)}`;
+    totalDisplay.innerText = `₹${total.toFixed(2)}`;
     return total;
   }
 
   function addHistItemRow() {
     const row = document.createElement("div");
     row.className = "hist-item-row";
-    row.style = "display:flex; gap:8px; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);";
+    row.style = "display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);";
     
+    const menuOptions = menu.map(item => `
+      <option value="${item.name}" data-id="${item.id}" data-price="${item.price}">${item.name} (₹${item.price})</option>
+    `).join("");
+
     row.innerHTML = `
-      <input type="text" class="hist-name" placeholder="Item Name" required style="flex:2; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px; color:white;">
-      <input type="number" class="hist-qty" placeholder="Qty" min="1" required style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px; color:white;">
-      <input type="number" class="hist-price" placeholder="Price (?)" step="0.01" min="0" required style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px; color:white;">
-      <button type="button" class="hist-del-btn" style="background:none; border:none; color:var(--nonveg-red); cursor:pointer; font-size:18px; padding:0 4px;">&times;</button>
+      <select class="hist-name" required style="background: var(--bg-surface-solid); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; color: white; width: 100%; font-family: var(--font-body); font-size: 13px;">
+        <option value="">-- Select Item --</option>
+        ${menuOptions}
+      </select>
+      <input type="number" class="hist-qty" placeholder="Qty" min="1" value="1" required style="background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; color: white; width: 100%; font-family: var(--font-body); text-align: center;">
+      <input type="number" class="hist-price" placeholder="Price (₹)" step="0.01" min="0" required style="background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; color: white; width: 100%; font-family: var(--font-body); text-align: right;">
+      <button type="button" class="hist-del-btn" style="background: none; border: none; color: var(--nonveg-red); cursor: pointer; font-size: 18px; padding: 0 4px;">&times;</button>
     `;
     
+    row.querySelector(".hist-name").addEventListener("change", (e) => {
+      const select = e.target;
+      const selectedOption = select.options[select.selectedIndex];
+      const price = selectedOption ? parseFloat(selectedOption.getAttribute("data-price")) : 0;
+      row.querySelector(".hist-price").value = isNaN(price) ? "" : price;
+      calculateHistTotal();
+    });
+
     row.querySelector(".hist-qty").addEventListener("input", calculateHistTotal);
     row.querySelector(".hist-price").addEventListener("input", calculateHistTotal);
     
@@ -2552,9 +2608,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   addItemBtn.addEventListener("click", addHistItemRow);
-  
-  // Add an initial empty row
-  addHistItemRow();
 
   histForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -2566,11 +2619,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const rows = itemsContainer.querySelectorAll(".hist-item-row");
     
     rows.forEach(row => {
-      const name = row.querySelector(".hist-name").value;
+      const select = row.querySelector(".hist-name");
+      const name = select.value;
       const qty = parseFloat(row.querySelector(".hist-qty").value) || 0;
       const price = parseFloat(row.querySelector(".hist-price").value) || 0;
+      
+      const selectedOption = select.options[select.selectedIndex];
+      const itemId = selectedOption ? selectedOption.getAttribute("data-id") : "";
+      
       if (name && qty > 0) {
-        items.push({ name, qty, price });
+        items.push({ id: itemId, name, qty, price });
       }
     });
     
@@ -2597,7 +2655,11 @@ document.addEventListener("DOMContentLoaded", () => {
       orders.push(newOrder);
       if (typeof saveOrdersToLocal === 'function') saveOrdersToLocal(orders);
       
-      // Reset form
+      // Close modal & Reset form
+      if (modal) {
+        modal.classList.remove("active");
+        modal.style.display = "none";
+      }
       histForm.reset();
       itemsContainer.innerHTML = "";
       addHistItemRow();
@@ -2605,8 +2667,9 @@ document.addEventListener("DOMContentLoaded", () => {
       
       showToast("Historical sales order logged successfully!", "success");
       
-      // Navigate to Order History view to see it
-      document.querySelector('.nav-item[data-view="orders"]').click();
+      // Refresh order view
+      renderOrdersList();
+      renderDashboard();
       
     } catch (err) {
       console.error("Error saving historical sales:", err);
