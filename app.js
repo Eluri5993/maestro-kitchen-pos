@@ -942,45 +942,6 @@ function initOrdersView() {
   document.getElementById("order-date-to").addEventListener("change", renderOrdersList);
 
   // Bind Export CSV
-  document.getElementById("btn-manual-sales").addEventListener("click", () => {
-    document.getElementById("modal-manual-sales").classList.add("active");
-  });
-
-  document.getElementById("manual-sales-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const dateVal = document.getElementById("manual-sales-date").value;
-    const amountVal = parseFloat(document.getElementById("manual-sales-amount").value);
-    
-    if (!dateVal || isNaN(amountVal)) return;
-
-    const newOrder = {
-      id: `manual-${Date.now()}`,
-      date: dateVal,
-      timestamp: new Date(dateVal + "T12:00:00").getTime(),
-      items: [],
-      totals: { finalTotal: amountVal },
-      payment: "Manual",
-      mode: "Manual",
-      isManualEntry: true
-    };
-
-    try {
-      const { doc, setDoc } = window.fbFirestore;
-      await setDoc(doc(db, "orders", newOrder.id), newOrder);
-      orders.push(newOrder);
-      saveOrdersToLocal(orders);
-      
-      document.getElementById("modal-manual-sales").classList.remove("active");
-      document.getElementById("manual-sales-form").reset();
-      
-      renderOrders();
-      renderDashboard();
-      showToast("Manual sales entry logged", "success");
-    } catch (err) {
-      console.error("Error saving manual sales:", err);
-      showToast("Failed to log manual sales", "error");
-    }
-  });
 
   document.getElementById("btn-export-sales-csv").addEventListener("click", () => {
     const csvContent = exportOrdersToCSV(orders);
