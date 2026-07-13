@@ -777,6 +777,7 @@ function initInventoryView() {
       item: document.getElementById("groc-item").value,
       qty: parseFloat(document.getElementById("groc-qty").value),
       unit: document.getElementById("groc-unit").value,
+      unitCost: parseFloat(document.getElementById("groc-unit-cost").value) || 0,
       cost: parseFloat(document.getElementById("groc-cost").value),
       buyer: document.getElementById("groc-buyer").value,
       paymode: document.getElementById("groc-paymode").value,
@@ -861,7 +862,8 @@ function renderGroceries() {
       <td>${g.date}</td>
       <td class="bold">${g.item}</td>
       <td style="text-align: right;">${g.qty} ${g.unit}</td>
-      <td style="text-align: right;" class="bold color-gold">₹${g.cost.toLocaleString()}</td>
+      <td style="text-align: right;">₹${(g.unitCost || (g.cost / (g.qty || 1))).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} / ${g.unit}</td>
+      <td style="text-align: right;" class="bold color-gold">₹${g.cost.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
       <td>${g.buyer}</td>
       <td><span class="badge-pay ${g.paymode.toLowerCase()}">${g.paymode}</span></td>
       <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${g.note || ""}">${g.note || "-"}</td>
@@ -1130,11 +1132,13 @@ async function deleteOrderAdmin(orderId) {
   if (!confirm("Are you sure you want to delete this order? This cannot be undone.")) return;
   
   try {
-    const { doc, deleteDoc } = window.fbFirestore;
     await deleteDoc(doc(db, "orders", orderId));
     
     // Remove from local cache
     orders = orders.filter(o => o.id !== orderId);
+    if (typeof saveOrdersToLocal === 'function') {
+      saveOrdersToLocal(orders);
+    }
     
     showToast(`Order ${orderId} deleted successfully.`, "success");
     renderOrders();
@@ -1153,12 +1157,22 @@ function openOrderDetailModal(orderId) {
   const modal = document.getElementById("modal-order-detail");
   document.getElementById("modal-order-title").innerText = `Bill #${order.id}`;
 
-  const itemsHtml = order.items.map(i => `
-    <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
-      <span>${i.name} (x${i.qty}) ${i.notes ? `<span style="font-size:10px; color:var(--text-muted); display:block;">* ${i.notes}</span>` : ""}</span>
-      <span class="bold">₹${(i.price * i.qty).toFixed(2)}</span>
-    </div>
-  `).join("");
+  const modeStr = order.mode || "Other";
+  const payStr = order.payment || "Other";
+  
+  let itemsHtml = "";
+  if (order.items && order.items.length > 0) {
+    itemsHtml = order.items.map(i => `
+      <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+        <span>${i.name} (x${i.qty}) ${i.notes ? `<span style="font-size:10px; color:var(--text-muted); display:block;">* ${i.notes}</span>` : ""}</span>
+        <span class="bold">₹${(i.price * i.qty).toFixed(2)}</span>
+      </div>
+    `).join("");
+  } else if (order.isManualEntry) {
+    itemsHtml = `<div style="color:var(--text-muted); font-size:12px; text-align:center; padding:10px;">Lump Sum Entry (No items)</div>`;
+  }
+
+  const totals = order.totals || { finalTotal: 0, subtotal: 0, cgst: 0, sgst: 0, discountAmount: 0 };
 
   document.getElementById("modal-order-body").innerHTML = `
     <div style="border-bottom:1px dashed rgba(255,255,255,0.08); padding-bottom:12px; margin-bottom:12px;">
@@ -1168,11 +1182,11 @@ function openOrderDetailModal(orderId) {
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
         <span style="color:var(--text-secondary);">Order Mode:</span>
-        <span class="badge-mode ${order.mode.toLowerCase()}">${order.mode}</span>
+        <span class="badge-mode ${modeStr.toLowerCase()}">${modeStr}</span>
       </div>
       <div style="display:flex; justify-content:space-between;">
         <span style="color:var(--text-secondary);">Payment Method:</span>
-        <span class="badge-pay ${order.payment.toLowerCase()}">${order.payment}</span>
+        <span class="badge-pay ${payStr.toLowerCase()}">${payStr}</span>
       </div>
     </div>
     
@@ -1182,33 +1196,35 @@ function openOrderDetailModal(orderId) {
     </div>
     
     <div style="display:flex; flex-direction:column; gap:4px;">
+      ${order.isManualEntry ? "" : `
       <div style="display:flex; justify-content:space-between;">
         <span style="color:var(--text-secondary);">Subtotal:</span>
-        <span>₹${order.totals.subtotal.toFixed(2)}</span>
+        <span>₹${(totals.subtotal || 0).toFixed(2)}</span>
       </div>
-      ${order.totals.discountAmount > 0 ? `
+      ${totals.discountAmount > 0 ? `
       <div style="display:flex; justify-content:space-between; color:var(--veg-green);">
         <span>Discount:</span>
-        <span>-₹${order.totals.discountAmount.toFixed(2)}</span>
+        <span>-₹${totals.discountAmount.toFixed(2)}</span>
       </div>
       ` : ""}
       <div style="display:flex; justify-content:space-between;">
-        <span style="color:var(--text-secondary);">CGST (${taxConfig.cgstRate}%):</span>
-        <span>₹${order.totals.cgst.toFixed(2)}</span>
+        <span style="color:var(--text-secondary);">CGST:</span>
+        <span>₹${(totals.cgst || 0).toFixed(2)}</span>
       </div>
       <div style="display:flex; justify-content:space-between;">
-        <span style="color:var(--text-secondary);">SGST (${taxConfig.sgstRate}%):</span>
-        <span>₹${order.totals.sgst.toFixed(2)}</span>
+        <span style="color:var(--text-secondary);">SGST:</span>
+        <span>₹${(totals.sgst || 0).toFixed(2)}</span>
       </div>
+      `}
       <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:var(--accent-gold); margin-top:8px;">
         <span>Total Bill Amount:</span>
-        <span>₹${order.totals.finalTotal.toFixed(2)}</span>
+        <span>₹${(totals.finalTotal || 0).toFixed(2)}</span>
       </div>
     </div>
   `;
 
   modal.classList.add("active");
-  lucide.createIcons();
+  if (window.lucide) window.lucide.createIcons();
 }
 
 // ----------------------------------------------------
@@ -2525,5 +2541,115 @@ document.addEventListener("DOMContentLoaded", () => {
         body.classList.remove("mobile-sidebar-open");
       }
     });
+  });
+});
+
+// ==========================================
+// HISTORICAL SALES LOGIC (ITEMIZED)
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+  const histForm = document.getElementById("hist-sales-form");
+  if (!histForm) return;
+
+  const itemsContainer = document.getElementById("hist-items-container");
+  const addItemBtn = document.getElementById("hist-add-item-btn");
+  const totalDisplay = document.getElementById("hist-total-display");
+  
+  function calculateHistTotal() {
+    let total = 0;
+    const rows = itemsContainer.querySelectorAll(".hist-item-row");
+    rows.forEach(row => {
+      const qty = parseFloat(row.querySelector(".hist-qty").value) || 0;
+      const price = parseFloat(row.querySelector(".hist-price").value) || 0;
+      total += (qty * price);
+    });
+    totalDisplay.innerText = `?${total.toFixed(2)}`;
+    return total;
+  }
+
+  function addHistItemRow() {
+    const row = document.createElement("div");
+    row.className = "hist-item-row";
+    row.style = "display:flex; gap:8px; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);";
+    
+    row.innerHTML = `
+      <input type="text" class="hist-name" placeholder="Item Name" required style="flex:2; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px; color:white;">
+      <input type="number" class="hist-qty" placeholder="Qty" min="1" required style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px; color:white;">
+      <input type="number" class="hist-price" placeholder="Price (?)" step="0.01" min="0" required style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px; color:white;">
+      <button type="button" class="hist-del-btn" style="background:none; border:none; color:var(--nonveg-red); cursor:pointer; font-size:18px; padding:0 4px;">&times;</button>
+    `;
+    
+    row.querySelector(".hist-qty").addEventListener("input", calculateHistTotal);
+    row.querySelector(".hist-price").addEventListener("input", calculateHistTotal);
+    
+    row.querySelector(".hist-del-btn").addEventListener("click", () => {
+      row.remove();
+      calculateHistTotal();
+    });
+    
+    itemsContainer.appendChild(row);
+  }
+
+  addItemBtn.addEventListener("click", addHistItemRow);
+  
+  // Add an initial empty row
+  addHistItemRow();
+
+  histForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    const dateVal = document.getElementById("hist-sales-date").value;
+    if (!dateVal) return;
+    
+    const items = [];
+    const rows = itemsContainer.querySelectorAll(".hist-item-row");
+    
+    rows.forEach(row => {
+      const name = row.querySelector(".hist-name").value;
+      const qty = parseFloat(row.querySelector(".hist-qty").value) || 0;
+      const price = parseFloat(row.querySelector(".hist-price").value) || 0;
+      if (name && qty > 0) {
+        items.push({ name, qty, price });
+      }
+    });
+    
+    if (items.length === 0) {
+      showToast("Please add at least one item.", "error");
+      return;
+    }
+    
+    const finalTotal = calculateHistTotal();
+    
+    const newOrder = {
+      id: `manual-${Date.now()}`,
+      date: dateVal,
+      timestamp: new Date(dateVal + "T12:00:00").getTime(),
+      items: items,
+      totals: { finalTotal, subtotal: finalTotal, cgst: 0, sgst: 0, discountAmount: 0 },
+      payment: "Manual",
+      mode: "Manual",
+      isManualEntry: true
+    };
+
+    try {
+      await setDoc(doc(db, "orders", newOrder.id), newOrder);
+      orders.push(newOrder);
+      if (typeof saveOrdersToLocal === 'function') saveOrdersToLocal(orders);
+      
+      // Reset form
+      histForm.reset();
+      itemsContainer.innerHTML = "";
+      addHistItemRow();
+      calculateHistTotal();
+      
+      showToast("Historical sales order logged successfully!", "success");
+      
+      // Navigate to Order History view to see it
+      document.querySelector('.nav-item[data-view="orders"]').click();
+      
+    } catch (err) {
+      console.error("Error saving historical sales:", err);
+      showToast("Failed to log historical sales", "error");
+    }
   });
 });

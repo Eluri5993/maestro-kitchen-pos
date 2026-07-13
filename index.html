@@ -120,6 +120,12 @@
           </a>
         </li>
         <li>
+          <a class="nav-item admin-only" data-view="historical-sales" style="display:none;">
+            <i data-lucide="history"></i>
+            <span>Log Historical Sales</span>
+          </a>
+        </li>
+        <li>
           <a class="nav-item" data-view="settings">
             <i data-lucide="settings"></i>
             <span>Settings</span>
@@ -511,7 +517,8 @@
                     <th>Date</th>
                     <th>Item</th>
                     <th style="text-align: right;">Qty</th>
-                    <th style="text-align: right;">Cost</th>
+                    <th style="text-align: right;">Unit Price</th>
+                    <th style="text-align: right;">Total Cost</th>
                     <th>Buyer</th>
                     <th>Pay Mode</th>
                     <th>Note</th>
@@ -533,9 +540,6 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
           <h2 class="chart-card-title" style="margin: 0;">Historical Sales Ledger</h2>
           <div style="display: flex; gap: 8px;">
-            <button class="table-action-btn admin-only" id="btn-manual-sales" style="display: none; background: rgba(200,152,47,0.1); color: var(--accent-gold); border: 1px solid var(--accent-gold);">
-              <i data-lucide="plus" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i> Log Manual Sales
-            </button>
             <button class="table-action-btn" id="btn-export-sales-csv">
               <i data-lucide="download" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
               Export Sales (CSV)
@@ -1022,6 +1026,38 @@
           </div>
         </div>
       </div>
+      <!-- VIEW: Historical Sales Entry -->
+      <div id="view-historical-sales" class="view-panel admin-only" style="display:none; max-width: 600px; margin: 0 auto; width: 100%;">
+        <div class="chart-card">
+          <h2 class="chart-card-title">Itemized Historical Sales Entry</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+            Enter past sales details from before POS usage. This will be logged as a "Manual Entry" and included in historical totals.
+          </p>
+          <form id="hist-sales-form">
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="hist-sales-date">Date of Sale</label>
+              <input type="date" id="hist-sales-date" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:10px; color:white; width: 100%; font-size: 15px;">
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="font-size: 15px; margin:0; color:var(--text-primary);">Order Items</h3>
+              <button type="button" id="hist-add-item-btn" class="table-action-btn" style="color:var(--accent-gold); border-color:var(--accent-gold);"><i data-lucide="plus" style="width:14px; height:14px; margin-right:4px; vertical-align:middle;"></i> Add Item</button>
+            </div>
+            
+            <div id="hist-items-container" style="display:flex; flex-direction:column; gap:12px; margin-bottom: 20px;">
+              <!-- Dynamic Item Rows Go Here -->
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+              <span style="font-size: 16px; color: var(--text-secondary);">Calculated Total:</span>
+              <span id="hist-total-display" style="font-size: 24px; font-weight: 700; color: var(--accent-gold);">₹0.00</span>
+            </div>
+            
+            <button type="submit" class="submit-btn" style="width: 100%; padding: 12px; font-size: 16px;">Log Historical Order</button>
+          </form>
+        </div>
+      </div>
+      
     </main>
     
   </div>
@@ -1083,38 +1119,12 @@
     </div>
   </div>
 
-  <!-- MODAL: Log Manual Historical Sales -->
-  <div class="modal" id="modal-manual-sales">
-    <div class="modal-content" style="max-width: 400px;">
-      <div class="modal-header">
-        <div class="modal-title">Log Historical Sales</div>
-        <button class="close-modal" onclick="document.getElementById('modal-manual-sales').classList.remove('active')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-          Enter past sales totals from before POS usage. These will appear in Monthly Bills and Dashboard totals as a "Manual Entry".
-        </p>
-        <form id="manual-sales-form">
-          <div class="form-group">
-            <label for="manual-sales-date">Date</label>
-            <input type="date" id="manual-sales-date" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
-          </div>
-          <div class="form-group">
-            <label for="manual-sales-amount">Total Sales Amount (₹)</label>
-            <input type="number" id="manual-sales-amount" min="0" step="0.01" required placeholder="E.g. 12500" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
-          </div>
-          <div class="form-group" style="margin-top: 16px;">
-            <button type="submit" class="submit-btn" style="width: 100%;">Log Sales Entry</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+
 
   <!-- PRINTING IFRAME (Thermal billing target) -->
   <iframe id="receipt-print-area" style="position: absolute; width: 0px; height: 0px; border: 0px;"></iframe>
 
   <!-- Core App Logic Module -->
-  <script type="module" src="app.js?v=4"></script>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>
