@@ -1281,3 +1281,97 @@ header {
   backdrop-filter: blur(4px);
 }
 
+
+/* =============================================
+   DATE PICKER FIXES
+   ============================================= */
+input[type="date"] {
+  color-scheme: dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* =============================================
+   SIDEBAR TOGGLE & MOBILE RESPONSIVENESS
+   ============================================= */
+
+/* Sidebar Toggle Logic */
+body.sidebar-collapsed sidebar {
+  width: 72px;
+}
+body.sidebar-collapsed main {
+  margin-left: 72px;
+}
+body.sidebar-collapsed .brand-text {
+  display: none;
+}
+body.sidebar-collapsed .nav-item span,
+body.sidebar-collapsed .sidebar-footer span {
+  display: none;
+}
+body.sidebar-collapsed #btn-sidebar-toggle {
+  transform: rotate(180deg);
+  right: auto;
+  left: 26px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Default sidebar off-screen on mobile */
+  sidebar {
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+  
+  /* When toggled open on mobile */
+  body.mobile-sidebar-open sidebar {
+    transform: translateX(0);
+  }
+  
+  main {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* Add a hamburger menu for mobile */
+  header {
+    padding-left: 50px;
+  }
+  
+  /* Stack billing layout vertically */
+  .billing-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+  }
+  .pos-categories, .pos-items, .pos-cart {
+    height: 500px;
+  }
+  
+  /* Stack tables layout */
+  .tables-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Stack groceries layout */
+  .groceries-split-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+.mobile-only-btn { display: none !important; }
+@media (max-width: 768px) {
+  .mobile-only-btn { display: block !important; }
+}

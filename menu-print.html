@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Maestro Kitchen - Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#1a1a1a; font-family:'Open Sans',sans-serif; }
+    @page { size: A4 landscape; margin: 0; }
+    @media print {
+      body { background:#000; }
+      .no-print { display:none !important; }
+      .page { page-break-after:always; box-shadow:none !important; margin:0 !important; }
+      .page:last-child { page-break-after:avoid; }
+    }
+    .no-print {
+      position:fixed; top:16px; right:16px; z-index:999;
+      background:#c8982f; color:#000; border:none;
+      padding:10px 22px; border-radius:4px;
+      font-size:15px; font-weight:700; cursor:pointer;
+    }
+    .page {
+      width:297mm; min-height:210mm;
+      margin:20px auto; background:#0d0d0d;
+      padding:6mm 9mm 11mm;
+      box-shadow:0 8px 40px rgba(0,0,0,0.7);
+      border:3px solid #c8982f;
+      outline:1px solid #c8982f;
+      outline-offset:-6px;
+      position:relative;
+    }
+    .menu-header { text-align:center; padding-bottom:5px; margin-bottom:6px; }
+    .restaurant-name {
+      font-family:'Cinzel',serif; font-size:52px; font-weight:900;
+      color:#c8982f; letter-spacing:10px; text-transform:uppercase;
+    }
+    .restaurant-sub {
+      font-size:15px; color:#c8982f; letter-spacing:6px;
+      text-transform:uppercase; font-style:italic; margin-top:2px;
+    }
+    .header-line { border:none; border-top:1px solid #c8982f; margin:5px 0; }
+    .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 20px; }
+    .section { margin-bottom:9px; }
+    .section-title {
+      font-size:17px; font-weight:700; color:#c8982f;
+      text-transform:uppercase; letter-spacing:2px;
+      margin-bottom:5px; padding-bottom:3px;
+      border-bottom:1px solid #c8982f;
+    }
+    .menu-item {
+      display:flex; justify-content:space-between; align-items:baseline;
+      padding:4px 0; border-bottom:1px solid rgba(200,152,47,0.15);
+    }
+    .item-name { font-size:16px; color:#e8e0d0; font-weight:300; flex:1; padding-right:10px; line-height:1.3; }
+    .item-price { font-size:16px; color:#e8e0d0; font-weight:400; white-space:nowrap; flex-shrink:0; }
+    .menu-footer {
+      position:absolute; bottom:4mm; left:0; right:0;
+      text-align:center; font-size:11px; color:#666; letter-spacing:1px;
+    }
+  </style>
+</head>
+<body>
+<button class="no-print" onclick="window.print()">Print / Save as PDF</button>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div class="menu-header">
+    <div class="restaurant-name">Maestro Kitchen</div>
+    <div class="restaurant-sub">Cafe &amp; Restaurant</div>
+    <hr class="header-line">
+  </div>
+  <div class="three-col">
+    <div class="section">
+      <div class="section-title">Chinese Soups</div>
+      <div class="menu-item"><span class="item-name">Hot &amp; Sour Soup (Veg)</span><span class="item-price">99/-</span></div>
+      <div class="menu-item"><span class="item-name">Hot &amp; Sour Soup (Non-Veg)</span><span class="item-price">109/-</span></div>
+      <div class="menu-item"><span class="item-name">Manchow Soup (Veg)</span><span class="item-price">99/-</span></div>
+      <div class="menu-item"><span class="item-name">Manchow Soup (Non-Veg)</span><span class="item-price">109/-</span></div>
+      <div class="menu-item"><span class="item-name">Lemon Coriander Soup (Veg)</span><span class="item-price">99/-</span></div>
+      <div class="menu-item"><span class="item-name">Lemon Coriander Soup (Non-Veg)</span><span class="item-price">109/-</span></div>
+      <div class="menu-item"><span class="item-name">Clear Soup (Veg)</span><span class="item-price">99/-</span></div>
+      <div class="menu-item"><span class="item-name">Clear Soup (Non-Veg)</span><span class="item-price">109/-</span></div>
+      <div class="menu-item"><span class="item-name">Sweet Corn Soup (Veg)</span><span class="item-price">99/-</span></div>
+      <div class="menu-item"><span class="item-name">Sweet Corn Soup (Non-Veg)</span><span class="item-price">109/-</span></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Veg Starters</div>
+      <div class="menu-item"><span class="item-name">Veg Manchuria</span><span class="item-price">129/-</span></div>
+      <div class="menu-item"><span class="item-name">Gobi Manchuria</span><span class="item-price">129/-</span></div>
+      <div class="menu-item"><span class="item-name">Gobi 65</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Gobi Chilly</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Mushroom Manchuria</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Mushroom 65</span><span class="item-price">149/-</span></div>
+      <div class="menu-item"><span class="item-name">Mushroom Chilly</span><span class="item-price">149/-</span></div>
+      <div class="menu-item"><span class="item-name">Baby Corn Manchuria</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Baby Corn 65</span><span class="item-price">149/-</span></div>
+      <div class="menu-item"><span class="item-name">Baby Corn Chilly</span><span class="item-price">149/-</span></div>
+      <div class="menu-item"><span class="item-name">Crispy Corn</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Corn Salt &amp; Pepper</span><span class="item-price">149/-</span></div>
+      <div class="menu-item"><span class="item-name">Veg Kaju Manchuria</span><span class="item-price">169/-</span></div>
+      <div class="menu-item"><span class="item-name">Paneer Manchuria</span><span class="item-price">159/-</span></div>
+      <div class="menu-item"><span class="item-name">Paneer 65</span><span class="item-price">169/-</span></div>
+      <div class="menu-item"><span class="item-name">Paneer Chilly</span><span class="item-price">169/-</span></div>
+      <div class="menu-item"><span class="item-name">Kaju Paneer Manchuria</span><span class="item-price">189/-</span></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Non-Veg Starters</div>
+      <div class="menu-item"><span class="item-name">Egg Omlet</span><span class="item-price">59/-</span></div>
+      <div class="menu-item"><span class="item-name">Egg Manchuria</span><span class="item-price">119/-</span></div>
+      <div class="menu-item"><span class="item-name">Egg Chilly</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Egg 65</span><span class="item-price">139/-</span></div>
+      <div class="menu-item"><span class="item-name">Chicken Manchuria</span><span class="item-price">169/-</span></div>
+      <div class="menu-item"><span class="item-name">Chicken 65</span><span class="item-price">179/-</span></div>
+      <div class="menu-item"><span class="item-name">Garlic Chicken</span><span class="item-price">179/-</span></div>
+      <div class="menu-item"><span class="item-name">Pepper Chicken</span><span class="item-price">179/-</span></div>
+      <div class="menu-item"><span class="item-name">Chilly Chicken</span><span class="item-price">179/-</span></div>
+      <div class="menu-item"><span class="item-name">Chicken Lollypop</span><span class="item-price">189/-</span></div>
+      <div class="menu-item"><span class="item-name">Chicken Majestic</span><span class="item-price">189/-</span></div>
+      <div class="menu-item"><span class="item-name">Chicken 555</span><span class="item-price">189/-</span></div>
+      <div class="menu-item"><span class="item-name">Dragon Chicken</span><span class="item-price">209/-</span></div>
+      <div class="menu-item"><span class="item-name">Royal Chicken</span><span class="item-price">219/-</span></div>
+      <div class="menu-item"><span class="item-name">Kaju Nut Chicken</span><span class="item-price">219/-</span></div>
+      <div class="menu-item"><span class="item-name">Chilly Fish</span><span class="item-price">239/-</span></div>
+      <div class="menu-item"><span class="item-name">Apollo Fish</span><span class="item-price">239/-</span></div>
+      <div class="menu-item"><span class="item-name">Prawns Manchuria</span><span class="item-price">259/-</span></div>
+      <div class="menu-item"><span class="item-name">Prawns Chilly</span><span class="item-price">269/-</span></div>
+      <div class="menu-item"><span class="item-name">Pepper Prawns</span><span class="item-price">269/-</span></div>
+      <div class="menu-item"><span class="item-name">Loose Prawns</span><span class="item-price">269/-</span></div>
+      <div class="menu-item"><span class="item-name">Golden Fry Prawns</span><span class="item-price">279/-</span></div>
+    </div>
+  </div>
+  <div class="menu-footer">Page 1 of 2 &nbsp;|&nbsp; Location: Hyderabad, India &nbsp;|&nbsp; Prices are in INR</div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="menu-header">
+    <div class="restaurant-name">Maestro Kitchen</div>
+    <div class="restaurant-sub">Cafe &amp; Restaurant</div>
+    <hr class="header-line">
+  </div>
+  <div class="three-col">
+    <div>
+      <div class="section">
+        <div class="section-title">Veg Rice</div>
+        <div class="menu-item"><span class="item-name">Veg Fried Rice</span><span class="item-price">99/-</span></div>
+        <div class="menu-item"><span class="item-name">Veg Schezwan Fried Rice</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Veg Manchurian Rice</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Veg Manchurian Schezwan Rice</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Gobi Fried Rice</span><span class="item-price">109/-</span></div>
+        <div class="menu-item"><span class="item-name">Gobi Schezwan Fried Rice</span><span class="item-price">129/-</span></div>
+        <div class="menu-item"><span class="item-name">Mushroom Fried Rice</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Mushroom Schezwan Rice</span><span class="item-price">129/-</span></div>
+        <div class="menu-item"><span class="item-name">Paneer Fried Rice</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Paneer Schezwan Rice</span><span class="item-price">149/-</span></div>
+        <div class="menu-item"><span class="item-name">Corn Rice</span><span class="item-price">109/-</span></div>
+        <div class="menu-item"><span class="item-name">Jeera Rice</span><span class="item-price">109/-</span></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Veg Noodles</div>
+        <div class="menu-item"><span class="item-name">Veg Noodles</span><span class="item-price">109/-</span></div>
+        <div class="menu-item"><span class="item-name">Veg Schezwan Noodles</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Veg Manchurian Noodles</span><span class="item-price">129/-</span></div>
+        <div class="menu-item"><span class="item-name">Veg Manchuria Schezwan Noodles</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Haka Noodles</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Paneer Noodles</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Paneer Schezwan Noodles</span><span class="item-price">149/-</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="section">
+        <div class="section-title">Non-Veg Rice</div>
+        <div class="menu-item"><span class="item-name">Egg Fried Rice</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Egg Schezwan Rice</span><span class="item-price">129/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken Fried Rice</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken Schezwan Rice</span><span class="item-price">149/-</span></div>
+        <div class="menu-item"><span class="item-name">Chilly Garlic Chicken Rice</span><span class="item-price">149/-</span></div>
+        <div class="menu-item"><span class="item-name">Chilly Garlic Egg Rice</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Prawns Fried Rice</span><span class="item-price">179/-</span></div>
+        <div class="menu-item"><span class="item-name">Prawns Schezwan Rice</span><span class="item-price">189/-</span></div>
+        <div class="menu-item"><span class="item-name">Mix Non-Veg Fried Rice</span><span class="item-price">219/-</span></div>
+        <div class="menu-item"><span class="item-name">Mix Non-Veg Schezwan Rice</span><span class="item-price">239/-</span></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Non-Veg Noodles</div>
+        <div class="menu-item"><span class="item-name">Egg Noodles</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Egg Schezwan Noodles</span><span class="item-price">129/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken Noodles</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken Schezwan Noodles</span><span class="item-price">149/-</span></div>
+        <div class="menu-item"><span class="item-name">Chilly Garlic Chicken Noodles</span><span class="item-price">149/-</span></div>
+        <div class="menu-item"><span class="item-name">Chilly Garlic Egg Noodles</span><span class="item-price">139/-</span></div>
+        <div class="menu-item"><span class="item-name">Prawns Noodles</span><span class="item-price">169/-</span></div>
+        <div class="menu-item"><span class="item-name">Schezwan Prawns Noodles</span><span class="item-price">189/-</span></div>
+        <div class="menu-item"><span class="item-name">Mix Non-Veg Noodles</span><span class="item-price">219/-</span></div>
+        <div class="menu-item"><span class="item-name">Schezwan Mix Non-Veg Noodles</span><span class="item-price">239/-</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="section">
+        <div class="section-title">Biryani (Single / Full)</div>
+        <div class="menu-item"><span class="item-name">Chicken Dum Biryani</span><span class="item-price">149/- | 239/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken Fry Piece Biryani</span><span class="item-price">169/- | 269/-</span></div>
+        <div class="menu-item"><span class="item-name">Special Chicken Biryani</span><span class="item-price">199/- | 299/-</span></div>
+        <div class="menu-item"><span class="item-name">Moghlai Chicken Biryani</span><span class="item-price">199/- | 299/-</span></div>
+        <div class="menu-item"><span class="item-name">Gongura Chicken Biryani</span><span class="item-price">199/- | 299/-</span></div>
+        <div class="menu-item"><span class="item-name">Prawns Biryani</span><span class="item-price">249/- | 349/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken 65 Biryani</span><span class="item-price">169/-</span></div>
+        <div class="menu-item"><span class="item-name">Chicken Roast Biryani</span><span class="item-price">179/-</span></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Veg Biryani (Single / Full)</div>
+        <div class="menu-item"><span class="item-name">Mushroom Biryani</span><span class="item-price">149/- | 249/-</span></div>
+        <div class="menu-item"><span class="item-name">Paneer Biryani</span><span class="item-price">169/- | 269/-</span></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Mojitos</div>
+        <div class="menu-item"><span class="item-name">Mint Mojito</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Strawberry Mojito</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Watermelon Mojito</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Blue Berry Mojito</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Green Apple Mojito</span><span class="item-price">119/-</span></div>
+        <div class="menu-item"><span class="item-name">Kiwi Mojito</span><span class="item-price">119/-</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="menu-footer">Page 2 of 2 &nbsp;|&nbsp; Location: Hyderabad, India &nbsp;|&nbsp; Prices are in INR</div>
+</div>
+</body>
+</html>

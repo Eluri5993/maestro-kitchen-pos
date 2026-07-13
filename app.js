@@ -754,6 +754,21 @@ function initInventoryView() {
   }
 
   const form = document.getElementById("groceries-log-form");
+  
+  const grocQty = document.getElementById("groc-qty");
+  const grocUnitCost = document.getElementById("groc-unit-cost");
+  const grocCost = document.getElementById("groc-cost");
+  
+  function updateGrocTotal() {
+    const qty = parseFloat(grocQty.value) || 0;
+    const unitCost = parseFloat(grocUnitCost.value) || 0;
+    const total = qty * unitCost;
+    grocCost.value = total > 0 ? total.toFixed(2) : "";
+  }
+  
+  if (grocQty) grocQty.addEventListener("input", updateGrocTotal);
+  if (grocUnitCost) grocUnitCost.addEventListener("input", updateGrocTotal);
+  
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const newGroc = {
@@ -774,6 +789,7 @@ function initInventoryView() {
     // Reset form fields
     document.getElementById("groc-item").value = "";
     document.getElementById("groc-qty").value = "";
+    document.getElementById("groc-unit-cost").value = "";
     document.getElementById("groc-cost").value = "";
     document.getElementById("groc-note").value = "";
     
@@ -924,6 +940,46 @@ function initOrdersView() {
   document.getElementById("order-date-to").addEventListener("change", renderOrdersList);
 
   // Bind Export CSV
+  document.getElementById("btn-manual-sales").addEventListener("click", () => {
+    document.getElementById("modal-manual-sales").classList.add("active");
+  });
+
+  document.getElementById("manual-sales-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const dateVal = document.getElementById("manual-sales-date").value;
+    const amountVal = parseFloat(document.getElementById("manual-sales-amount").value);
+    
+    if (!dateVal || isNaN(amountVal)) return;
+
+    const newOrder = {
+      id: `manual-${Date.now()}`,
+      date: dateVal,
+      timestamp: new Date(dateVal + "T12:00:00").getTime(),
+      items: [],
+      totals: { finalTotal: amountVal },
+      payment: "Manual",
+      mode: "Manual",
+      isManualEntry: true
+    };
+
+    try {
+      const { doc, setDoc } = window.fbFirestore;
+      await setDoc(doc(db, "orders", newOrder.id), newOrder);
+      orders.push(newOrder);
+      saveOrdersToLocal(orders);
+      
+      document.getElementById("modal-manual-sales").classList.remove("active");
+      document.getElementById("manual-sales-form").reset();
+      
+      renderOrders();
+      renderDashboard();
+      showToast("Manual sales entry logged", "success");
+    } catch (err) {
+      console.error("Error saving manual sales:", err);
+      showToast("Failed to log manual sales", "error");
+    }
+  });
+
   document.getElementById("btn-export-sales-csv").addEventListener("click", () => {
     const csvContent = exportOrdersToCSV(orders);
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -1028,21 +1084,28 @@ function renderOrdersList() {
     return;
   }
 
-  rowsTarget.innerHTML = filtered.map(o => `
-    <tr>
-      <td class="bold">${o.id}</td>
-      <td>${new Date(o.date).toLocaleString()}</td>
-      <td>
-        <span class="badge-mode ${o.mode.toLowerCase()}">${o.mode}</span>
-        ${o.tableNumber ? `<span style="font-size: 10px; color: var(--accent-gold); display: block; margin-top: 2px;">Table ${o.tableNumber}</span>` : ""}
-      </td>
-      <td><span class="badge-pay ${o.payment.toLowerCase()}">${o.payment}</span></td>
-      <td style="text-align: right;" class="bold color-gold">₹${o.totals.finalTotal.toFixed(2)}</td>
-      <td style="text-align: center;">
-        <button class="table-action-btn view-order-btn" data-order-id="${o.id}">View Details</button>
-      </td>
-    </tr>
-  `).join("");
+  rowsTarget.innerHTML = filtered.map(o => {
+    const isAdmin = typeof currentUserProfile !== 'undefined' && currentUserProfile && currentUserProfile.role === "Admin";
+    const manualTag = o.isManualEntry ? `<span class="badge-buyer" style="background:#c8982f; color:#000; font-size:10px; margin-left: 6px; padding: 2px 4px; border-radius: 4px;">Manual Entry</span>` : "";
+    const delBtnHtml = isAdmin ? `<button class="table-action-btn del-order-btn" data-order-id="${o.id}" style="color: #ef4444; margin-left: 8px;"><i data-lucide="trash-2" style="width:14px; height:14px; vertical-align:middle;"></i> Delete</button>` : "";
+    
+    return `
+      <tr>
+        <td class="bold">${o.id} ${manualTag}</td>
+        <td>${new Date(o.date).toLocaleString()}</td>
+        <td>
+          <span class="badge-mode ${o.mode ? o.mode.toLowerCase() : 'other'}">${o.mode || 'N/A'}</span>
+          ${o.tableNumber ? `<span style="font-size: 10px; color: var(--accent-gold); display: block; margin-top: 2px;">Table ${o.tableNumber}</span>` : ""}
+        </td>
+        <td><span class="badge-pay ${o.payment ? o.payment.toLowerCase() : 'other'}">${o.payment || 'N/A'}</span></td>
+        <td style="text-align: right;" class="bold color-gold">₹${(o.totals ? o.totals.finalTotal : 0).toFixed(2)}</td>
+        <td style="text-align: center;">
+          <button class="table-action-btn view-order-btn" data-order-id="${o.id}">View Details</button>
+          ${delBtnHtml}
+        </td>
+      </tr>
+    `;
+  }).join("");
 
   // Bind view details row click
   rowsTarget.querySelectorAll(".view-order-btn").forEach(btn => {
@@ -1051,7 +1114,37 @@ function renderOrdersList() {
       openOrderDetailModal(orderId);
     });
   });
+
+  // Bind delete order row click
+  rowsTarget.querySelectorAll(".del-order-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const orderId = btn.getAttribute("data-order-id");
+      deleteOrderAdmin(orderId);
+    });
+  });
+  
+  if (window.lucide) window.lucide.createIcons();
 }
+
+async function deleteOrderAdmin(orderId) {
+  if (!confirm("Are you sure you want to delete this order? This cannot be undone.")) return;
+  
+  try {
+    const { doc, deleteDoc } = window.fbFirestore;
+    await deleteDoc(doc(db, "orders", orderId));
+    
+    // Remove from local cache
+    orders = orders.filter(o => o.id !== orderId);
+    
+    showToast(`Order ${orderId} deleted successfully.`, "success");
+    renderOrders();
+    renderDashboard();
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    showToast("Failed to delete order.", "error");
+  }
+}
+
 
 function openOrderDetailModal(orderId) {
   const order = orders.find(o => o.id === orderId);
@@ -2397,3 +2490,40 @@ function renderUsersList() {
   });
 }
 
+
+// Sidebar Toggle Logic
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebarToggle = document.getElementById("btn-sidebar-toggle");
+  const mobileMenuBtn = document.getElementById("btn-mobile-menu");
+  const body = document.body;
+  const navItems = document.querySelectorAll(".nav-item");
+
+  // Desktop minimize toggle
+  if (sidebarToggle) {
+    // Restore state
+    if (localStorage.getItem("sidebar-collapsed") === "true") {
+      body.classList.add("sidebar-collapsed");
+    }
+    
+    sidebarToggle.addEventListener("click", () => {
+      body.classList.toggle("sidebar-collapsed");
+      localStorage.setItem("sidebar-collapsed", body.classList.contains("sidebar-collapsed"));
+    });
+  }
+
+  // Mobile menu open
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener("click", () => {
+      body.classList.toggle("mobile-sidebar-open");
+    });
+  }
+
+  // Close mobile menu on nav click
+  navItems.forEach(item => {
+    item.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        body.classList.remove("mobile-sidebar-open");
+      }
+    });
+  });
+});
