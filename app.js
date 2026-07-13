@@ -2140,7 +2140,7 @@ function redirectUserAfterLogin() {
 function applyRoleAccess(role) {
   const adminItems = document.querySelectorAll(".admin-only");
   if (role === "Admin") {
-    adminItems.forEach(el => el.style.display = "block");
+    adminItems.forEach(el => el.style.display = "");
   } else {
     adminItems.forEach(el => el.style.display = "none");
     
