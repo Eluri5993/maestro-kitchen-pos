@@ -66,6 +66,8 @@ let activeCategory = CATEGORIES[0];
 let activeDiningMode = "Dine-In";
 let activePayMode = "UPI";
 let discount = { type: "percent", value: 0 };
+let activePromo = null;
+let promoCodes = [];
 
 // Chart.js instances
 let hourlyChartInstance = null;
@@ -442,30 +444,86 @@ function initPOSBilling() {
     renderPOSItems(searchVal);
   });
 
-  // Dining Mode Event Selection
-  document.querySelectorAll("[data-dining-mode]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-dining-mode]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeDiningMode = btn.getAttribute("data-dining-mode");
+  // Dining Mode dropdown change event
+  const diningSelect = document.getElementById("checkout-dining-mode");
+  if (diningSelect) {
+    diningSelect.value = activeDiningMode;
+    diningSelect.addEventListener("change", () => {
+      activeDiningMode = diningSelect.value;
     });
-  });
+  }
 
-  // Payment Mode Event Selection
-  document.querySelectorAll("[data-pay-mode]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-pay-mode]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activePayMode = btn.getAttribute("data-pay-mode");
+  // Payment Mode dropdown change event
+  const paySelect = document.getElementById("checkout-pay-mode");
+  if (paySelect) {
+    paySelect.value = activePayMode;
+    paySelect.addEventListener("change", () => {
+      activePayMode = paySelect.value;
     });
-  });
+  }
+
+  // Promo Code apply/remove events
+  const promoInput = document.getElementById("checkout-promo-code");
+  const applyPromoBtn = document.getElementById("btn-apply-promo");
+  const removePromoBtn = document.getElementById("btn-remove-promo");
+
+  const applyPromo = () => {
+    const code = promoInput.value.trim().toUpperCase();
+    if (!code) {
+      showToast("Please enter a promo code", "error");
+      return;
+    }
+    
+    const promo = promoCodes.find(p => p.code.toUpperCase() === code);
+    if (!promo) {
+      showToast("Invalid promo code", "error");
+      return;
+    }
+    
+    if (!promo.active) {
+      showToast("This promo code is inactive", "error");
+      return;
+    }
+    
+    const todayStr = new Date().toISOString().substring(0, 10);
+    if (promo.expiryDate && promo.expiryDate < todayStr) {
+      showToast("This promo code has expired", "error");
+      return;
+    }
+    
+    activePromo = promo;
+    document.getElementById("applied-promo-code-name").innerText = promo.code;
+    document.getElementById("applied-promo-info").style.display = "flex";
+    promoInput.value = "";
+    updateCartCalculations();
+    showToast(`Promo code ${promo.code} applied successfully!`, "success");
+  };
+
+  if (applyPromoBtn) applyPromoBtn.addEventListener("click", applyPromo);
+  if (promoInput) {
+    promoInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") applyPromo();
+    });
+  }
+  if (removePromoBtn) {
+    removePromoBtn.addEventListener("click", () => {
+      activePromo = null;
+      document.getElementById("applied-promo-info").style.display = "none";
+      updateCartCalculations();
+      showToast("Promo code removed", "success");
+    });
+  }
 
   // Clear Cart Event
   document.getElementById("btn-clear-cart").addEventListener("click", () => {
     cart = [];
     document.getElementById("checkout-discount-value").value = "";
     document.getElementById("checkout-discount-reason").value = "";
+    document.getElementById("checkout-discount-reason").style.display = "none";
     document.getElementById("checkout-discount-type").value = "percent";
+    activePromo = null;
+    document.getElementById("applied-promo-info").style.display = "none";
+    if (promoInput) promoInput.value = "";
     renderCart();
     showToast("Cart cleared", "success");
   });
@@ -476,9 +534,18 @@ function initPOSBilling() {
   // Discount input listeners
   const discType = document.getElementById("checkout-discount-type");
   const discVal = document.getElementById("checkout-discount-value");
+  const discReason = document.getElementById("checkout-discount-reason");
   if (discType && discVal) {
     discType.addEventListener("change", updateCartCalculations);
-    discVal.addEventListener("input", updateCartCalculations);
+    discVal.addEventListener("input", () => {
+      const val = parseFloat(discVal.value) || 0;
+      if (val > 0) {
+        if (discReason) discReason.style.display = "block";
+      } else {
+        if (discReason) discReason.style.display = "none";
+      }
+      updateCartCalculations();
+    });
   }
 
   // Initial Item rendering
@@ -573,24 +640,32 @@ function renderCart() {
   }
 
   cartList.innerHTML = cart.map(item => `
-    <div class="cart-item-row" data-cart-id="${item.menuId}">
-      <div class="cart-item-details">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price-sub">₹${item.price.toFixed(2)} x ${item.qty}</div>
-        
-        <span class="cart-item-note-trigger" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-          ${item.notes ? "Edit Note" : "+ Add Instruction"}
-        </span>
-        <input type="text" class="cart-item-note-input" value="${item.notes}" placeholder="E.g. Extra spicy, no onions" style="display: ${item.notes ? "block" : "none"};" />
+    <div class="cart-item-row" data-cart-id="${item.menuId}" style="display: flex; flex-direction: column; gap: 8px; padding: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; position: relative;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+        <div class="cart-item-name" style="font-weight: 600; font-size: 13px; color: var(--text-primary); line-height: 1.4; word-break: break-word; margin-bottom: 0;">${item.name}</div>
+        <i data-lucide="trash-2" class="cart-item-delete" data-action="delete" style="cursor: pointer; color: var(--text-muted); transition: var(--transition-fast); flex-shrink: 0;"></i>
       </div>
       
-      <div class="cart-item-controls">
-        <i data-lucide="trash-2" class="cart-item-delete" data-action="delete"></i>
-        <div class="cart-qty-buttons">
-          <button class="qty-btn" data-action="dec">-</button>
-          <span class="qty-val">${item.qty}</span>
-          <button class="qty-btn" data-action="inc">+</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="cart-qty-buttons" style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.05); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <button class="qty-btn" data-action="dec" style="width: 24px; height: 24px; border: none; background: transparent; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;">-</button>
+            <span class="qty-val" style="padding: 0 8px; font-size: 12px; font-weight: 600;">${item.qty}</span>
+            <button class="qty-btn" data-action="inc" style="width: 24px; height: 24px; border: none; background: transparent; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;">+</button>
+          </div>
+          <span style="font-size: 12px; color: var(--text-secondary);">@ ₹${item.price.toFixed(2)}</span>
         </div>
+        
+        <div style="font-weight: 700; font-size: 14px; color: var(--accent-gold); font-family: var(--font-heading);">
+          ₹${(item.price * item.qty).toFixed(2)}
+        </div>
+      </div>
+
+      <div>
+        <span class="cart-item-note-trigger" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'" style="font-size: 10px; color: var(--text-muted); cursor: pointer; text-decoration: underline;">
+          ${item.notes ? "Edit Note" : "+ Add Instruction"}
+        </span>
+        <input type="text" class="cart-item-note-input" value="${item.notes || ''}" placeholder="E.g. Extra spicy, no onions" style="display: ${item.notes ? "block" : "none"}; width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px; padding: 4px 6px; font-size: 11px; color: white; margin-top: 4px; outline: none;" />
       </div>
     </div>
   `).join("");
@@ -660,7 +735,7 @@ function updateCartCalculations() {
   else if (type === "flat" && val > subtotal) validatedVal = subtotal;
 
   const activeDiscount = { type, value: validatedVal };
-  const totals = calculateCartTotals(cart, activeDiscount, taxConfig);
+  const totals = calculateCartTotals(cart, activeDiscount, taxConfig, activePromo);
   
   document.getElementById("bill-subtotal").innerText = `₹${totals.subtotal.toFixed(2)}`;
   document.getElementById("bill-cgst").innerText = `₹${totals.cgst.toFixed(2)}`;
@@ -674,6 +749,15 @@ function updateCartCalculations() {
     document.getElementById("bill-discount").innerText = `-₹${totals.discountAmount.toFixed(2)}`;
   } else {
     discountRow.style.display = "none";
+  }
+
+  const promoRow = document.getElementById("summary-promo-row");
+  if (totals.promoDiscountAmount > 0 && activePromo) {
+    promoRow.style.display = "flex";
+    document.getElementById("summary-promo-label").innerText = `Promo (${activePromo.code}):`;
+    document.getElementById("bill-promo-discount").innerText = `-₹${totals.promoDiscountAmount.toFixed(2)}`;
+  } else {
+    promoRow.style.display = "none";
   }
 }
 
@@ -702,7 +786,7 @@ function placePOSOrder() {
   }
 
   const activeDiscount = { type, value: val, reason };
-  const totals = calculateCartTotals(cart, activeDiscount, taxConfig);
+  const totals = calculateCartTotals(cart, activeDiscount, taxConfig, activePromo);
 
   const newOrder = {
     id: `MK-${Date.now().toString().slice(-6)}`,
@@ -717,7 +801,13 @@ function placePOSOrder() {
       value: activeDiscount.value,
       amount: totals.discountAmount,
       reason: activeDiscount.reason
-    }
+    },
+    promoInfo: activePromo ? {
+      code: activePromo.code,
+      discountType: activePromo.discountType,
+      discountValue: activePromo.discountValue,
+      amount: totals.promoDiscountAmount
+    } : null
   };
 
   // Save order records
@@ -756,7 +846,11 @@ function placePOSOrder() {
   cart = [];
   document.getElementById("checkout-discount-value").value = "";
   document.getElementById("checkout-discount-reason").value = "";
+  document.getElementById("checkout-discount-reason").style.display = "none";
   document.getElementById("checkout-discount-type").value = "percent";
+  activePromo = null;
+  document.getElementById("applied-promo-info").style.display = "none";
+  if (promoInput) promoInput.value = "";
   renderCart();
   
   showToast(`Bill #${newOrder.id} generated and printed successfully!`, "success");
@@ -819,7 +913,36 @@ function initInventoryView() {
 
   document.getElementById("groc-filter-search").addEventListener("input", renderGroceries);
   document.getElementById("groc-filter-buyer").addEventListener("change", renderGroceries);
-  document.getElementById("groc-filter-date").addEventListener("change", renderGroceries);
+  
+  const grocPeriodSelect = document.getElementById("groc-filter-period");
+  if (grocPeriodSelect) {
+    grocPeriodSelect.addEventListener("change", () => {
+      const customRangeDiv = document.getElementById("groc-custom-range");
+      if (grocPeriodSelect.value === "custom") {
+        customRangeDiv.style.display = "flex";
+      } else {
+        customRangeDiv.style.display = "none";
+        renderGroceries();
+      }
+    });
+  }
+
+  const applyGrocCustomBtn = document.getElementById("btn-groc-apply-custom");
+  if (applyGrocCustomBtn) {
+    applyGrocCustomBtn.addEventListener("click", () => {
+      const fromVal = document.getElementById("groc-date-from").value;
+      const toVal = document.getElementById("groc-date-to").value;
+      if (!fromVal || !toVal) {
+        showToast("Please select both From and To dates", "error");
+        return;
+      }
+      if (fromVal > toVal) {
+        showToast("From date cannot be after To date", "error");
+        return;
+      }
+      renderGroceries();
+    });
+  }
 
   document.getElementById("btn-export-groceries-csv").addEventListener("click", () => {
     const csvContent = exportGroceriesToCSV(groceries);
@@ -839,13 +962,43 @@ function initInventoryView() {
 function renderGroceries() {
   const searchVal = document.getElementById("groc-filter-search").value.toLowerCase();
   const buyerVal = document.getElementById("groc-filter-buyer").value;
-  const dateVal = document.getElementById("groc-filter-date").value;
+  const periodVal = document.getElementById("groc-filter-period").value;
+  const fromDateVal = document.getElementById("groc-date-from").value;
+  const toDateVal = document.getElementById("groc-date-to").value;
+
+  const now = new Date();
+  const todayStr = now.toISOString().substring(0, 10);
+
+  // Compute Monday & Sunday for current week (Monday-Sunday)
+  const currentDay = now.getDay();
+  const dayDiff = currentDay === 0 ? 6 : currentDay - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dayDiff);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
 
   const filtered = groceries.filter(g => {
     const matchesSearch = g.item.toLowerCase().includes(searchVal) || g.note.toLowerCase().includes(searchVal);
     const matchesBuyer = buyerVal === "All" ? true : g.buyer === buyerVal;
-    const matchesDate = !dateVal ? true : g.date === dateVal;
-    return matchesSearch && matchesBuyer && matchesDate;
+    
+    let matchesPeriod = true;
+    const itemDate = new Date(g.date + "T00:00:00");
+
+    if (periodVal === "today") {
+      matchesPeriod = g.date === todayStr;
+    } else if (periodVal === "week") {
+      matchesPeriod = itemDate >= monday && itemDate <= sunday;
+    } else if (periodVal === "month") {
+      const gDate = new Date(g.date + "T00:00:00");
+      matchesPeriod = gDate.getMonth() === now.getMonth() && gDate.getFullYear() === now.getFullYear();
+    } else if (periodVal === "custom") {
+      if (fromDateVal) matchesPeriod = matchesPeriod && g.date >= fromDateVal;
+      if (toDateVal) matchesPeriod = matchesPeriod && g.date <= toDateVal;
+    }
+
+    return matchesSearch && matchesBuyer && matchesPeriod;
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   // Metrics
@@ -855,7 +1008,7 @@ function renderGroceries() {
   let spendAntony = 0;
   let spendSanthosh = 0;
 
-  groceries.forEach(g => {
+  filtered.forEach(g => {
     totalSpend += g.cost;
     if (g.buyer === "Shiva") spendShiva += g.cost;
     else if (g.buyer === "Vamshi") spendVamshi += g.cost;
@@ -2145,6 +2298,7 @@ let ordersUnsubscribe = null;
 let groceriesUnsubscribe = null;
 let billsUnsubscribe = null;
 let tablesUnsubscribe = null;
+let promoCodesUnsubscribe = null;
 
 function startRealtimeSync() {
   // Sync Menu
@@ -2260,6 +2414,27 @@ function startRealtimeSync() {
     }
   });
 
+  // Sync Promo Codes
+  promoCodesUnsubscribe = onSnapshot(collection(db, "promo_codes"), (snapshot) => {
+    promoCodes = [];
+    snapshot.forEach(docSnap => {
+      promoCodes.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    
+    if (promoCodes.length === 0) {
+      const DEFAULT_PROMO_CODES = [
+        { id: "promo-1", code: "SAVE10", discountType: "percent", discountValue: 10, active: true, expiryDate: "2026-12-31" },
+        { id: "promo-2", code: "FLAT50", discountType: "flat", discountValue: 50, active: true, expiryDate: "2026-12-31" },
+        { id: "promo-3", code: "WELCOME20", discountType: "percent", discountValue: 20, active: true, expiryDate: "2026-12-31" }
+      ];
+      DEFAULT_PROMO_CODES.forEach(async p => {
+        await setDoc(doc(db, "promo_codes", p.id), { code: p.code, discountType: p.discountType, discountValue: p.discountValue, active: p.active, expiryDate: p.expiryDate });
+      });
+      return;
+    }
+    localStorage.setItem("maestro_promo_codes", JSON.stringify(promoCodes));
+  });
+
   // Sync Tax Config settings
   onSnapshot(doc(db, "settings", "tax_config"), (docSnap) => {
     if (docSnap.exists()) {
@@ -2279,6 +2454,7 @@ function stopRealtimeSync() {
   if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
   if (groceriesUnsubscribe) { groceriesUnsubscribe(); groceriesUnsubscribe = null; }
   if (billsUnsubscribe) { billsUnsubscribe(); billsUnsubscribe = null; }
+  if (promoCodesUnsubscribe) { promoCodesUnsubscribe(); promoCodesUnsubscribe = null; }
 }
 
 // ====================================================

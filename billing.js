@@ -29,9 +29,10 @@ export function saveTaxConfigToLocal(config) {
  * @param {Array} cartItems - List of { price, qty }
  * @param {Object} discount - { type: 'percent'|'flat', value: number }
  * @param {Object} config - Tax configuration
+ * @param {Object} promo - Applied promo { discountType: 'percent'|'flat', discountValue: number }
  * @returns {Object} Calculated figures
  */
-export function calculateCartTotals(cartItems, discount = { type: "percent", value: 0 }, config = getLocalTaxConfig()) {
+export function calculateCartTotals(cartItems, discount = { type: "percent", value: 0 }, config = getLocalTaxConfig(), promo = null) {
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
   
   let discountAmount = 0;
@@ -41,7 +42,17 @@ export function calculateCartTotals(cartItems, discount = { type: "percent", val
     discountAmount = Math.min(subtotal, discount.value);
   }
 
-  const taxableAmount = Math.max(0, subtotal - discountAmount);
+  let promoDiscountAmount = 0;
+  const subtotalAfterManual = Math.max(0, subtotal - discountAmount);
+  if (promo) {
+    if (promo.discountType === "percent") {
+      promoDiscountAmount = parseFloat(((subtotalAfterManual * promo.discountValue) / 100).toFixed(2));
+    } else if (promo.discountType === "flat") {
+      promoDiscountAmount = Math.min(subtotalAfterManual, promo.discountValue);
+    }
+  }
+
+  const taxableAmount = Math.max(0, subtotal - discountAmount - promoDiscountAmount);
   
   const cgst = parseFloat(((taxableAmount * config.cgstRate) / 100).toFixed(2));
   const sgst = parseFloat(((taxableAmount * config.sgstRate) / 100).toFixed(2));
@@ -53,6 +64,7 @@ export function calculateCartTotals(cartItems, discount = { type: "percent", val
   return {
     subtotal,
     discountAmount,
+    promoDiscountAmount,
     taxableAmount,
     cgst,
     sgst,
@@ -200,6 +212,12 @@ export function generateThermalReceiptHTML(order, config = getLocalTaxConfig()) 
           <tr>
             <td class="text-left">Discount${order.discountInfo && order.discountInfo.reason ? ` (${order.discountInfo.reason})` : ""}:</td>
             <td class="text-right">-${fmt(order.totals.discountAmount)}</td>
+          </tr>
+          ` : ""}
+          ${order.totals.promoDiscountAmount > 0 ? `
+          <tr>
+            <td class="text-left">Promo${order.promoInfo && order.promoInfo.code ? ` (${order.promoInfo.code})` : ""}:</td>
+            <td class="text-right">-${fmt(order.totals.promoDiscountAmount)}</td>
           </tr>
           ` : ""}
           <tr>

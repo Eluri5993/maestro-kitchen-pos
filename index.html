@@ -307,37 +307,56 @@
               </div>
             </div>
             
-            <!-- Dining Mode Selection -->
-            <div class="checkout-configs">
-              <div class="config-section-title">Dining Option</div>
-              <div class="config-options">
-                <button class="config-btn active" data-dining-mode="Dine-In">Dine-In</button>
-                <button class="config-btn" data-dining-mode="Takeaway">Takeaway</button>
-                <button class="config-btn" data-dining-mode="Delivery">Delivery</button>
+            <!-- Dining Mode & Payment Mode Selection -->
+            <div class="checkout-configs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-bottom: none; padding-bottom: 0;">
+              <div>
+                <div class="config-section-title" style="margin-bottom: 6px;">Dining Option</div>
+                <select id="checkout-dining-mode" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:12px; width: 100%;">
+                  <option value="Dine-In">Dine-In</option>
+                  <option value="Takeaway">Takeaway</option>
+                  <option value="Delivery">Delivery</option>
+                </select>
               </div>
-            </div>
-            
-            <!-- Payment Mode Selection -->
-            <div class="checkout-configs" style="border-top: none; padding-top: 0;">
-              <div class="config-section-title">Payment Option</div>
-              <div class="config-options">
-                <button class="config-btn active" data-pay-mode="UPI">UPI</button>
-                <button class="config-btn" data-pay-mode="Cash">Cash</button>
-                <button class="config-btn" data-pay-mode="Card">Card</button>
+              <div>
+                <div class="config-section-title" style="margin-bottom: 6px;">Payment Option</div>
+                <select id="checkout-pay-mode" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:12px; width: 100%;">
+                  <option value="UPI">UPI</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                </select>
               </div>
             </div>
 
-            <!-- Discount Configuration -->
+            <!-- Promo Code & Manual Discount Section -->
             <div class="checkout-configs" style="border-top: none; padding-top: 0; display: flex; flex-direction: column; gap: 8px;">
-              <div class="config-section-title">Bill Discount</div>
-              <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px; align-items: center;">
-                <select id="checkout-discount-type" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:12px;">
-                  <option value="percent">Percentage (%)</option>
-                  <option value="flat">Flat Amount (₹)</option>
-                </select>
-                <input type="number" id="checkout-discount-value" min="0" placeholder="Value (e.g. 10)" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body);">
+              <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; align-items: flex-start;">
+                <!-- Promo Code -->
+                <div>
+                  <div class="config-section-title" style="margin-bottom: 6px;">Promo Code</div>
+                  <div style="display: flex; gap: 6px;">
+                    <input type="text" id="checkout-promo-code" placeholder="E.g. SAVE10" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body); width: 100%; text-transform: uppercase;">
+                    <button id="btn-apply-promo" class="config-btn" style="background: var(--accent-gold); color: var(--bg-base); border: none; font-weight: bold; padding: 0 10px; height: 32px; width: auto; font-size: 11px; cursor: pointer;">Apply</button>
+                  </div>
+                </div>
+                <!-- Manual Discount -->
+                <div>
+                  <div class="config-section-title" style="margin-bottom: 6px;">Bill Discount</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <select id="checkout-discount-type" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:11px; width: 100%;">
+                      <option value="percent">%</option>
+                      <option value="flat">₹</option>
+                    </select>
+                    <input type="number" id="checkout-discount-value" min="0" placeholder="Val" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body); width: 100%;">
+                  </div>
+                </div>
               </div>
-              <input type="text" id="checkout-discount-reason" placeholder="Reason (e.g. Manager Approval)" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body);">
+              
+              <!-- Applied Promo Status and Manual Discount Reason -->
+              <div id="applied-promo-info" style="display: none; align-items: center; justify-content: space-between; font-size: 11px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; padding: 6px 10px; color: var(--veg-green);">
+                <span>Applied: <strong id="applied-promo-code-name">SAVE10</strong></span>
+                <span style="cursor: pointer; text-decoration: underline; color: var(--nonveg-red);" id="btn-remove-promo">Remove</span>
+              </div>
+              <input type="text" id="checkout-discount-reason" placeholder="Reason (e.g. Manager Approval)" style="display: none; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body); width: 100%;">
             </div>
             
             <!-- Totals Overview Box -->
@@ -349,6 +368,10 @@
               <div class="summary-row discount" id="summary-discount-row" style="display: none;">
                 <span>Discount:</span>
                 <span id="bill-discount">₹0.00</span>
+              </div>
+              <div class="summary-row discount" id="summary-promo-row" style="display: none;">
+                <span id="summary-promo-label">Promo:</span>
+                <span id="bill-promo-discount">₹0.00</span>
               </div>
               <div class="summary-row">
                 <span>CGST (2.5%):</span>
@@ -500,7 +523,21 @@
                 <option value="Antony">Antony</option>
                 <option value="Santhosh">Santhosh</option>
               </select>
-              <input type="date" id="groc-filter-date" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%;">
+              <select id="groc-filter-period" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%;">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Bar (hidden by default) -->
+            <div id="groc-custom-range" style="display: none; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+              <label style="font-size:12px; color:var(--text-secondary);">From:</label>
+              <input type="date" id="groc-date-from" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px; color:white; font-family:var(--font-body); font-size:12px;">
+              <label style="font-size:12px; color:var(--text-secondary);">To:</label>
+              <input type="date" id="groc-date-to" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px; color:white; font-family:var(--font-body); font-size:12px;">
+              <button id="btn-groc-apply-custom" class="config-btn" style="background: var(--accent-gold); color: var(--bg-base); border: none; font-weight: bold; padding: 6px 12px; height: auto; width: auto; font-size: 11px; cursor: pointer;">Apply</button>
             </div>
 
             <!-- Spreadsheet Grid Table -->
