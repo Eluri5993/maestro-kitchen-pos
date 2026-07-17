@@ -8,7 +8,7 @@ import {
   getLocalOrders, 
   getDashboardMetrics, 
   getTopSellingItems, 
-  getHourlySalesData, 
+  getSalesGraphData, 
   getCategorySalesData, 
   exportOrdersToCSV 
 } from "./analytics.js";
@@ -68,6 +68,9 @@ let activePayMode = "UPI";
 let discount = { type: "percent", value: 0 };
 let activePromo = null;
 let promoCodes = [];
+let currentDashPeriod = "today";
+let currentDashFromDate = "";
+let currentDashToDate = "";
 
 // Chart.js instances
 let hourlyChartInstance = null;
@@ -86,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initTablesView();
   initAuth();
   initUsersView();
+  initDashboardFilters();
   
   // Global click listeners
   document.addEventListener("click", (e) => {
@@ -288,24 +292,94 @@ function initViewRouting() {
 // DASHBOARD VIEW
 // ----------------------------------------------------
 function renderDashboard() {
-  const metrics = getDashboardMetrics(orders);
+  const period = currentDashPeriod;
+  const fromDate = currentDashFromDate;
+  const toDate = currentDashToDate;
+
+  // Filter orders and groceries by date range
+  const now = new Date();
+  const todayStr = now.toISOString().substring(0, 10);
+
+  // Compute Monday & Sunday for current week (Monday-Sunday)
+  const currentDay = now.getDay();
+  const dayDiff = currentDay === 0 ? 6 : currentDay - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dayDiff);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+
+  let filteredOrders = [];
+  let filteredGroceries = [];
+
+  if (period === "today") {
+    filteredOrders = orders.filter(o => o.date.substring(0, 10) === todayStr);
+    filteredGroceries = groceries.filter(g => g.date === todayStr);
+  } else if (period === "week") {
+    filteredOrders = orders.filter(o => {
+      const oDate = new Date(o.date);
+      return oDate >= monday && oDate <= sunday;
+    });
+    filteredGroceries = groceries.filter(g => {
+      const gDate = new Date(g.date + "T00:00:00");
+      return gDate >= monday && gDate <= sunday;
+    });
+  } else if (period === "month") {
+    filteredOrders = orders.filter(o => {
+      const oDate = new Date(o.date);
+      return oDate.getMonth() === now.getMonth() && oDate.getFullYear() === now.getFullYear();
+    });
+    filteredGroceries = groceries.filter(g => {
+      const gDate = new Date(g.date + "T00:00:00");
+      return gDate.getMonth() === now.getMonth() && gDate.getFullYear() === now.getFullYear();
+    });
+  } else if (period === "custom") {
+    const start = fromDate ? new Date(fromDate + "T00:00:00") : null;
+    const end = toDate ? new Date(toDate + "T23:59:59") : null;
+    
+    filteredOrders = orders.filter(o => {
+      const oDate = new Date(o.date);
+      if (start && oDate < start) return false;
+      if (end && oDate > end) return false;
+      return true;
+    });
+    filteredGroceries = groceries.filter(g => {
+      const gDate = new Date(g.date + "T00:00:00");
+      if (start && gDate < start) return false;
+      if (end && gDate > end) return false;
+      return true;
+    });
+  }
+
+  const metrics = getDashboardMetrics(filteredOrders, "filtered");
   
   // Set Text Values
   document.getElementById("dash-revenue").innerText = `₹${metrics.revenue.toLocaleString()}`;
   document.getElementById("dash-bills").innerText = metrics.orderCount;
   document.getElementById("dash-aov").innerText = `₹${metrics.avgOrderValue.toLocaleString()}`;
   
-  // Today's Grocery spend
-  const todayStr = new Date().toISOString().substring(0, 10);
-  const todayGroceries = groceries.filter(g => g.date === todayStr);
-  const todayGrocSpend = todayGroceries.reduce((sum, g) => sum + g.cost, 0);
-  document.getElementById("dash-groceries-today").innerText = `₹${todayGrocSpend.toLocaleString()}`;
+  // Grocery spend for selected period
+  const grocSpend = filteredGroceries.reduce((sum, g) => sum + g.cost, 0);
+  document.getElementById("dash-groceries-today").innerText = `₹${grocSpend.toLocaleString()}`;
   
-  // Render Dashboard Charts
-  renderDashboardCharts(metrics);
+  // Update card headings
+  const revLabel = document.getElementById("dash-revenue-label");
+  const grocLabel = document.getElementById("dash-groceries-label");
+  
+  let labelText = "Today's";
+  if (period === "week") labelText = "This Week's";
+  else if (period === "month") labelText = "This Month's";
+  else if (period === "custom") labelText = "Period's";
+  
+  if (revLabel) revLabel.innerText = `${labelText} Sales`;
+  if (grocLabel) grocLabel.innerText = `${labelText} Groceries`;
 
-  // Render Top Selling Items Table
-  const topSelling = getTopSellingItems(orders, 5);
+  // Render Dashboard Charts
+  renderDashboardCharts(metrics, period, fromDate, toDate);
+
+  // Render Top Selling Items Table (running on filtered orders!)
+  const topSelling = getTopSellingItems(filteredOrders, 5);
   const topRows = document.getElementById("dash-top-selling-rows");
   if (topSelling.length === 0) {
     topRows.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No sales data logged yet</td></tr>`;
@@ -319,9 +393,9 @@ function renderDashboard() {
     `).join("");
   }
 
-  // Render Recent Groceries Log List
+  // Render Recent Groceries Log List (running on filtered groceries!)
   const recentGrocRows = document.getElementById("dash-recent-groceries-rows");
-  const sortedGroc = [...groceries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const sortedGroc = [...filteredGroceries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
   if (sortedGroc.length === 0) {
     recentGrocRows.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No grocery logs yet</td></tr>`;
   } else {
@@ -336,20 +410,33 @@ function renderDashboard() {
   }
 }
 
-function renderDashboardCharts(metrics) {
-  // Chart 1: Hourly trend
-  const hourlyData = getHourlySalesData(orders);
+function renderDashboardCharts(metrics, period, fromDate, toDate) {
+  // Chart 1: Sales Trend (Scoped to period)
+  const graphData = getSalesGraphData(metrics.ordersList, period, fromDate, toDate);
   const ctxHourly = document.getElementById("hourlySalesChart").getContext("2d");
   
   if (hourlyChartInstance) hourlyChartInstance.destroy();
   
+  let datasetLabel = "Hourly Revenue (₹)";
+  if (period !== "today") datasetLabel = "Daily Revenue (₹)";
+
+  // Update chart card title
+  const chartTitle = document.querySelector(".chart-card-header .chart-card-title");
+  if (chartTitle) {
+    let titleText = "Hourly Sales Trend (Today)";
+    if (period === "week") titleText = "Daily Sales Trend (This Week)";
+    else if (period === "month") titleText = "Daily Sales Trend (This Month)";
+    else if (period === "custom") titleText = "Daily Sales Trend (Custom Range)";
+    chartTitle.innerText = titleText;
+  }
+  
   hourlyChartInstance = new Chart(ctxHourly, {
     type: "line",
     data: {
-      labels: hourlyData.labels,
+      labels: graphData.labels,
       datasets: [{
-        label: "Hourly Revenue (₹)",
-        data: hourlyData.data,
+        label: datasetLabel,
+        data: graphData.data,
         borderColor: "#d4af37",
         backgroundColor: "rgba(212, 175, 55, 0.15)",
         borderWidth: 3,
@@ -410,6 +497,56 @@ function renderDashboardCharts(metrics) {
       cutout: "70%"
     }
   });
+}
+
+function initDashboardFilters() {
+  const periodSelect = document.getElementById("dash-filter-period");
+  const customRangeDiv = document.getElementById("dash-custom-range");
+  const applyBtn = document.getElementById("btn-dash-apply-custom");
+
+  if (periodSelect) {
+    periodSelect.addEventListener("change", () => {
+      const period = periodSelect.value;
+      currentDashPeriod = period;
+      if (period === "custom") {
+        if (customRangeDiv) customRangeDiv.style.display = "flex";
+      } else {
+        if (customRangeDiv) customRangeDiv.style.display = "none";
+        triggerDashboardUpdate();
+      }
+    });
+  }
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", () => {
+      const fromVal = document.getElementById("dash-date-from").value;
+      const toVal = document.getElementById("dash-date-to").value;
+      
+      if (!fromVal || !toVal) {
+        showToast("Please select both From and To dates", "error");
+        return;
+      }
+      if (fromVal > toVal) {
+        showToast("From date cannot be after To date", "error");
+        return;
+      }
+      
+      currentDashFromDate = fromVal;
+      currentDashToDate = toVal;
+      triggerDashboardUpdate();
+    });
+  }
+}
+
+function triggerDashboardUpdate() {
+  const loader = document.getElementById("hourly-chart-loader");
+  if (loader) loader.style.display = "flex";
+
+  // Simulate a smooth loading state of 400ms
+  setTimeout(() => {
+    renderDashboard();
+    if (loader) loader.style.display = "none";
+  }, 400);
 }
 
 // ----------------------------------------------------

@@ -23,15 +23,18 @@ export function saveOrdersToLocal(orders) {
  * @returns {Object} Dashboard metrics
  */
 export function getDashboardMetrics(orders, dateStr = "") {
-  const targetDate = dateStr ? new Date(dateStr) : new Date();
+  let dayOrders = orders;
   
-  // Filter for orders from targetDate (local calendar day)
-  const dayOrders = orders.filter(order => {
-    const oDate = new Date(order.date);
-    return oDate.getFullYear() === targetDate.getFullYear() &&
-           oDate.getMonth() === targetDate.getMonth() &&
-           oDate.getDate() === targetDate.getDate();
-  });
+  if (dateStr !== "filtered") {
+    const targetDate = dateStr ? new Date(dateStr) : new Date();
+    // Filter for orders from targetDate (local calendar day)
+    dayOrders = orders.filter(order => {
+      const oDate = new Date(order.date);
+      return oDate.getFullYear() === targetDate.getFullYear() &&
+             oDate.getMonth() === targetDate.getMonth() &&
+             oDate.getDate() === targetDate.getDate();
+    });
+  }
 
   const totalRevenue = dayOrders.reduce((sum, o) => sum + o.totals.finalTotal, 0);
   const totalOrders = dayOrders.length;
@@ -61,6 +64,90 @@ export function getDashboardMetrics(orders, dateStr = "") {
     modes,
     ordersList: dayOrders
   };
+}
+
+/**
+ * Get sales data grouped by hour or day depending on the period range
+ * @param {Array} filteredOrders - List of filtered orders
+ * @param {string} period - today, week, month, custom
+ * @param {string} fromDate - YYYY-MM-DD
+ * @param {string} toDate - YYYY-MM-DD
+ * @returns {Object} { labels: Array, data: Array }
+ */
+export function getSalesGraphData(filteredOrders, period = "today", fromDate = "", toDate = "") {
+  if (period === "today") {
+    const hourlyRevenue = Array(24).fill(0);
+    filteredOrders.forEach(order => {
+      const oDate = new Date(order.date);
+      const hour = oDate.getHours();
+      hourlyRevenue[hour] += order.totals.finalTotal;
+    });
+
+    const labels = [];
+    const data = [];
+    for (let h = 9; h <= 23; h++) {
+      const label = h === 12 ? "12 PM" : h > 12 ? `${h - 12} PM` : `${h} AM`;
+      labels.push(label);
+      data.push(hourlyRevenue[h]);
+    }
+    return { labels, data };
+  } else if (period === "week") {
+    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const dailyRevenue = Array(7).fill(0);
+
+    filteredOrders.forEach(order => {
+      const oDate = new Date(order.date);
+      let dayIndex = oDate.getDay(); // 0 is Sunday, 1 is Monday
+      dayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+      dailyRevenue[dayIndex] += order.totals.finalTotal;
+    });
+
+    return { labels: dayNames, data: dailyRevenue };
+  } else if (period === "month") {
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const dailyRevenue = Array(daysInMonth).fill(0);
+
+    filteredOrders.forEach(order => {
+      const oDate = new Date(order.date);
+      const day = oDate.getDate();
+      dailyRevenue[day - 1] += order.totals.finalTotal;
+    });
+
+    const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
+    return { labels, data: dailyRevenue };
+  } else if (period === "custom") {
+    const revenueByDate = {};
+    if (!fromDate || !toDate) {
+      return { labels: [], data: [] };
+    }
+    
+    // Pre-populate date range
+    const start = new Date(fromDate + "T00:00:00");
+    const end = new Date(toDate + "T23:59:59");
+    const temp = new Date(start);
+    
+    while (temp <= end) {
+      const dateStr = temp.toISOString().substring(0, 10);
+      revenueByDate[dateStr] = 0;
+      temp.setDate(temp.getDate() + 1);
+    }
+
+    filteredOrders.forEach(order => {
+      const dateStr = order.date.substring(0, 10);
+      if (revenueByDate[dateStr] !== undefined) {
+        revenueByDate[dateStr] += order.totals.finalTotal;
+      }
+    });
+
+    const labels = Object.keys(revenueByDate).map(d => {
+      const parts = d.split("-");
+      return `${parts[1]}-${parts[2]}`; // MM-DD
+    });
+    const data = Object.values(revenueByDate);
+    return { labels, data };
+  }
+  return { labels: [], data: [] };
 }
 
 /**
