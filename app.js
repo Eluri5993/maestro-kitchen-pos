@@ -1351,6 +1351,51 @@ function renderOrdersList() {
   document.getElementById("orders-summary-count").innerText = totalOrders;
   document.getElementById("orders-summary-total").innerText = totalSales.toLocaleString();
 
+  // Payment Mode breakdown totals
+  const paymentTotals = {};
+  filtered.forEach(o => {
+    let mode = o.payment || "Other";
+    const lowerMode = mode.toLowerCase();
+    if (lowerMode === "upi") mode = "UPI";
+    else if (lowerMode === "cash") mode = "Cash";
+    else if (lowerMode === "card") mode = "Card";
+    else {
+      mode = mode.charAt(0).toUpperCase() + mode.slice(1);
+    }
+    
+    if (!paymentTotals[mode]) {
+      paymentTotals[mode] = { totalAmount: 0, orderCount: 0 };
+    }
+    paymentTotals[mode].totalAmount += o.totals.finalTotal;
+    paymentTotals[mode].orderCount++;
+  });
+
+  const sortedModes = Object.keys(paymentTotals).sort((a, b) => {
+    if (a === "UPI") return -1;
+    if (b === "UPI") return 1;
+    if (a === "Cash") return -1;
+    if (b === "Cash") return 1;
+    return a.localeCompare(b);
+  });
+
+  const breakdownContainer = document.getElementById("orders-payment-breakdown");
+  if (breakdownContainer) {
+    if (filtered.length === 0) {
+      breakdownContainer.innerHTML = "";
+    } else {
+      breakdownContainer.innerHTML = sortedModes.map(mode => {
+        const stats = paymentTotals[mode];
+        return `
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 10px; border-radius: 6px; color: var(--text-secondary); font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
+            <span style="color: var(--text-muted);">${mode}:</span>
+            <strong style="color: var(--accent-gold);">₹${stats.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+            <span style="color: var(--text-muted); font-size: 10px;">(${stats.orderCount} order${stats.orderCount !== 1 ? 's' : ''})</span>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+
   if (filtered.length === 0) {
     rowsTarget.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 30px;">No transaction records found</td></tr>`;
     return;

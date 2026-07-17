@@ -628,13 +628,18 @@
         </div>
 
         <!-- Text Search + Summary Bar -->
-        <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
           <div class="pos-search-bar" style="flex:1; min-width:200px; margin:0;">
             <input type="text" id="order-search-input" placeholder="Search by Bill No, Mode, Payment...">
           </div>
           <div id="orders-summary-bar" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:6px 14px; font-size:12px; white-space:nowrap; color:var(--text-secondary);">
             <span id="orders-summary-count" style="font-weight:600; color:var(--text-primary);">0</span> orders &nbsp;|&nbsp; ₹<span id="orders-summary-total" style="font-weight:600; color:var(--accent-gold);">0</span>
           </div>
+        </div>
+        
+        <!-- Payment Breakdown Stats Bar -->
+        <div id="orders-payment-breakdown" style="display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; font-size:11px;">
+          <!-- Injected via JavaScript as pills -->
         </div>
         
         <div class="orders-table-wrapper">
