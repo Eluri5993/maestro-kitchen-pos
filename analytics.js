@@ -37,8 +37,10 @@ export function getDashboardMetrics(orders, dateStr = "") {
   }
 
   const totalRevenue = dayOrders.reduce((sum, o) => sum + o.totals.finalTotal, 0);
-  const totalOrders = dayOrders.length;
-  const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+  const realOrders = dayOrders.filter(o => !o.is_backfilled);
+  const totalOrders = realOrders.length;
+  const realRevenue = realOrders.reduce((sum, o) => sum + o.totals.finalTotal, 0);
+  const avgOrderValue = totalOrders > 0 ? Math.round(realRevenue / totalOrders) : 0;
 
   // Payments breakdown
   const payments = { cash: 0, upi: 0, card: 0 };

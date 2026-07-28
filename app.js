@@ -1346,7 +1346,7 @@ function renderOrdersList() {
   const rowsTarget = document.getElementById("orders-table-rows");
   
   // Update Summary
-  const totalOrders = filtered.length;
+  const totalOrders = filtered.filter(o => !o.is_backfilled).length;
   const totalSales = filtered.reduce((sum, o) => sum + o.totals.finalTotal, 0);
   document.getElementById("orders-summary-count").innerText = totalOrders;
   document.getElementById("orders-summary-total").innerText = totalSales.toLocaleString();
@@ -1367,7 +1367,9 @@ function renderOrdersList() {
       paymentTotals[mode] = { totalAmount: 0, orderCount: 0 };
     }
     paymentTotals[mode].totalAmount += o.totals.finalTotal;
-    paymentTotals[mode].orderCount++;
+    if (!o.is_backfilled) {
+      paymentTotals[mode].orderCount++;
+    }
   });
 
   const sortedModes = Object.keys(paymentTotals).sort((a, b) => {
@@ -1403,7 +1405,7 @@ function renderOrdersList() {
 
   rowsTarget.innerHTML = filtered.map(o => {
     const isAdmin = typeof currentUserProfile !== 'undefined' && currentUserProfile && currentUserProfile.role === "Admin";
-    const manualTag = o.isManualEntry ? `<span class="badge-buyer" style="background:#c8982f; color:#000; font-size:10px; margin-left: 6px; padding: 2px 4px; border-radius: 4px;">Manual Entry</span>` : "";
+    const manualTag = o.is_backfilled ? `<span class="badge-buyer" style="background:#3b82f6; color:#fff; font-size:10px; margin-left: 6px; padding: 2px 4px; border-radius: 4px;">Historical Backfill</span>` : (o.isManualEntry ? `<span class="badge-buyer" style="background:#c8982f; color:#000; font-size:10px; margin-left: 6px; padding: 2px 4px; border-radius: 4px;">Manual Entry</span>` : "");
     const delBtnHtml = isAdmin ? `<button class="table-action-btn del-order-btn" data-order-id="${o.id}" style="color: #ef4444; margin-left: 8px;"><i data-lucide="trash-2" style="width:14px; height:14px; vertical-align:middle;"></i> Delete</button>` : "";
     
     return `
@@ -1483,6 +1485,8 @@ function openOrderDetailModal(orderId) {
         <span class="bold">₹${(i.price * i.qty).toFixed(2)}</span>
       </div>
     `).join("");
+  } else if (order.is_backfilled) {
+    itemsHtml = `<div style="color:var(--text-muted); font-size:12px; text-align:center; padding:10px;">Legacy Historical Sales (No items)</div>`;
   } else if (order.isManualEntry) {
     itemsHtml = `<div style="color:var(--text-muted); font-size:12px; text-align:center; padding:10px;">Lump Sum Entry (No items)</div>`;
   }
@@ -1511,7 +1515,7 @@ function openOrderDetailModal(orderId) {
     </div>
     
     <div style="display:flex; flex-direction:column; gap:4px;">
-      ${order.isManualEntry ? "" : `
+      ${(order.isManualEntry || order.is_backfilled) ? "" : `
       <div style="display:flex; justify-content:space-between;">
         <span style="color:var(--text-secondary);">Subtotal:</span>
         <span>₹${(totals.subtotal || 0).toFixed(2)}</span>
