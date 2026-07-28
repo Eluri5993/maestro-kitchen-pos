@@ -1822,7 +1822,21 @@ function initRecurringBills() {
     }
   });
 
-  // Handle bill paid date toggle
+  const paidBySelect = document.getElementById("bill-paid-by-select");
+  const customPaidBy = document.getElementById("bill-custom-paid-by");
+  
+  paidBySelect.addEventListener("change", () => {
+    if (paidBySelect.value === "Custom") {
+      customPaidBy.style.display = "inline-block";
+      customPaidBy.required = true;
+    } else {
+      customPaidBy.style.display = "none";
+      customPaidBy.required = false;
+      customPaidBy.value = "";
+    }
+  });
+
+  // Handle bill paid details toggle
   const billStatus = document.getElementById("bill-status");
   const paidDateGroup = document.getElementById("bill-paid-date-group");
   const paidDateInput = document.getElementById("bill-paid-date");
@@ -1831,9 +1845,15 @@ function initRecurringBills() {
     if (billStatus.value === "Paid") {
       paidDateGroup.style.display = "flex";
       paidDateInput.value = new Date().toISOString().substring(0, 10);
+      paidBySelect.required = true;
     } else {
       paidDateGroup.style.display = "none";
       paidDateInput.value = "";
+      paidBySelect.value = "";
+      paidBySelect.required = false;
+      customPaidBy.style.display = "none";
+      customPaidBy.value = "";
+      customPaidBy.required = false;
     }
   });
 
@@ -1865,13 +1885,22 @@ function initRecurringBills() {
     const dueDate = document.getElementById("bill-due-date").value;
     const status = billStatus.value;
     const paidDate = status === "Paid" ? (document.getElementById("bill-paid-date").value || new Date().toISOString().substring(0,10)) : "";
+    
+    let paidBy = "";
+    if (status === "Paid") {
+      paidBy = paidBySelect.value;
+      if (paidBy === "Custom") {
+        paidBy = customPaidBy.value.trim();
+      }
+    }
+    
     const notes = document.getElementById("bill-notes").value || "";
 
     if (billId) {
       // Edit
       const idx = recurringBills.findIndex(b => b.id === billId);
       if (idx > -1) {
-        recurringBills[idx] = { ...recurringBills[idx], category, name: category, amount, period, dueDate, status, paidDate, notes };
+        recurringBills[idx] = { ...recurringBills[idx], category, name: category, amount, period, dueDate, status, paidDate, paidBy, notes };
         showToast("Recurring bill log updated", "success");
       }
     } else {
@@ -1885,6 +1914,7 @@ function initRecurringBills() {
         dueDate,
         status,
         paidDate,
+        paidBy,
         notes
       };
       recurringBills.push(newBill);
@@ -1932,6 +1962,19 @@ function resetBillForm() {
   document.getElementById("bill-status").value = "Unpaid";
   document.getElementById("bill-paid-date-group").style.display = "none";
   document.getElementById("bill-paid-date").value = "";
+  
+  const paidBySelect = document.getElementById("bill-paid-by-select");
+  if (paidBySelect) {
+    paidBySelect.value = "";
+    paidBySelect.required = false;
+  }
+  const customPaidBy = document.getElementById("bill-custom-paid-by");
+  if (customPaidBy) {
+    customPaidBy.value = "";
+    customPaidBy.style.display = "none";
+    customPaidBy.required = false;
+  }
+  
   document.getElementById("bill-notes").value = "";
   
   document.getElementById("bill-form-title").innerText = "Log Recurring Bill";
@@ -1975,7 +2018,7 @@ function renderRecurringBills() {
 
   const tbody = document.getElementById("bills-table-rows");
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:20px;">No recurring bills found</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:20px;">No recurring bills found</td></tr>`;
     return;
   }
 
@@ -1989,6 +2032,7 @@ function renderRecurringBills() {
         <td>${b.dueDate}</td>
         <td><span class="${statusClass}">${b.status}</span></td>
         <td>${b.paidDate || "-"}</td>
+        <td>${b.paidBy || "-"}</td>
         <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${b.notes || ""}">${b.notes || "-"}</td>
         <td style="text-align: center;">
           <button class="table-action-btn btn-edit-bill" style="padding: 4px 8px; margin-right: 4px; font-size:11px;">Edit</button>
@@ -2003,6 +2047,8 @@ function renderRecurringBills() {
   const customCat = document.getElementById("bill-custom-category");
   const paidDateGroup = document.getElementById("bill-paid-date-group");
   const billStatus = document.getElementById("bill-status");
+  const paidBySelect = document.getElementById("bill-paid-by-select");
+  const customPaidBy = document.getElementById("bill-custom-paid-by");
 
   tbody.querySelectorAll(".btn-edit-bill").forEach(btn => {
     btn.onclick = () => {
@@ -2032,9 +2078,30 @@ function renderRecurringBills() {
         if (bill.status === "Paid") {
           paidDateGroup.style.display = "flex";
           document.getElementById("bill-paid-date").value = bill.paidDate;
+          
+          // Set paid by value
+          const standardPayees = ["Vamshi", "Shiva", "Santhosh", "Antoni"];
+          const paidByVal = bill.paidBy || "";
+          if (standardPayees.includes(paidByVal) || paidByVal === "") {
+            paidBySelect.value = paidByVal;
+            customPaidBy.style.display = "none";
+            customPaidBy.value = "";
+            customPaidBy.required = false;
+          } else {
+            paidBySelect.value = "Custom";
+            customPaidBy.style.display = "inline-block";
+            customPaidBy.value = paidByVal;
+            customPaidBy.required = true;
+          }
+          paidBySelect.required = true;
         } else {
           paidDateGroup.style.display = "none";
           document.getElementById("bill-paid-date").value = "";
+          paidBySelect.value = "";
+          paidBySelect.required = false;
+          customPaidBy.style.display = "none";
+          customPaidBy.value = "";
+          customPaidBy.required = false;
         }
         
         document.getElementById("bill-notes").value = bill.notes || "";
@@ -2060,7 +2127,7 @@ function renderRecurringBills() {
 }
 
 function exportBillsToCSV(data) {
-  const headers = ["ID", "Category", "Amount (INR)", "Period (Month)", "Due Date", "Status", "Paid Date", "Notes"];
+  const headers = ["ID", "Category", "Amount (INR)", "Period (Month)", "Due Date", "Status", "Paid Date", "Paid By", "Notes"];
   const rows = data.map(b => [
     b.id,
     b.category,
@@ -2069,6 +2136,7 @@ function exportBillsToCSV(data) {
     b.dueDate,
     b.status,
     b.paidDate || "",
+    b.paidBy || "",
     (b.notes || "").replace(/"/g, '""')
   ]);
   

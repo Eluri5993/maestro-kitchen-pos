@@ -891,9 +891,27 @@
                 </div>
               </div>
 
-              <div class="form-group" id="bill-paid-date-group" style="display: none;">
-                <label for="bill-paid-date">Date Paid</label>
-                <input type="date" id="bill-paid-date" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%; font-family: var(--font-body);">
+              <div id="bill-paid-date-group" style="display: none; flex-direction: column; gap: 12px; width: 100%;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div class="form-group" style="margin: 0;">
+                    <label for="bill-paid-date">Date Paid</label>
+                    <input type="date" id="bill-paid-date" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%; font-family: var(--font-body); height: 36px;">
+                  </div>
+                  <div class="form-group" style="margin: 0;">
+                    <label for="bill-paid-by-select">Paid By</label>
+                    <div style="display: flex; gap: 8px;">
+                      <select id="bill-paid-by-select" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; flex-grow: 1; font-family:var(--font-body); font-size:13px;">
+                        <option value="">-- Select --</option>
+                        <option value="Vamshi">Vamshi</option>
+                        <option value="Shiva">Shiva</option>
+                        <option value="Santhosh">Santhosh</option>
+                        <option value="Antoni">Antoni</option>
+                        <option value="Custom">-- Add Custom --</option>
+                      </select>
+                      <input type="text" id="bill-custom-paid-by" placeholder="Custom Name" style="display: none; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100px;">
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="form-group">
@@ -940,6 +958,7 @@
                     <th>Due Date</th>
                     <th>Status</th>
                     <th>Paid Date</th>
+                    <th>Paid By</th>
                     <th>Notes</th>
                     <th style="text-align: center;">Actions</th>
                   </tr>
