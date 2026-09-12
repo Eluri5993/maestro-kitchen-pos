@@ -107,14 +107,15 @@ export function generateThermalReceiptHTML(order, config = getLocalTaxConfig()) 
           @page { size: 80mm auto; margin: 4mm 2mm; }
           body {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 11px;
+            font-size: 13px;
+            font-weight: 900;
             color: #000;
             width: 74mm;
             margin: 0 auto;
             padding: 6px 0;
             text-align: center;
           }
-          .bold { font-weight: bold; }
+          .bold { font-weight: 900; }
           .title { font-size: 15px; margin-bottom: 2px; letter-spacing: 1px; }
           .divider { border-top: 1px dashed #000; margin: 6px 0; }
           /* Item list using flexbox for fixed column spacing */
