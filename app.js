@@ -3107,14 +3107,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Admin backdoor to forcefully overwrite live Firebase menu with DEFAULT_MENU
-  if (window.location.search.includes('forceMenuSync')) {
+  // Auto-sync new menu prices to live Firebase database (Runs once per browser)
+  const MENU_VERSION = "v3_price_update";
+  if (localStorage.getItem("menu_sync_version") !== MENU_VERSION) {
     setTimeout(() => {
       saveMenuToLocal(DEFAULT_MENU).then(() => {
-        alert("Menu synced to Firebase live! You can now remove ?forceMenuSync=true from the URL.");
-      }).catch(err => {
-        alert("Failed to sync menu: " + err.message);
-      });
-    }, 3000);
+        localStorage.setItem("menu_sync_version", MENU_VERSION);
+        console.log("New prices automatically synced to Firebase live!");
+      }).catch(err => console.error("Sync failed:", err));
+    }, 4000);
   }
 });
