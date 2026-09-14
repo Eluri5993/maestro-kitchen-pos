@@ -147,7 +147,7 @@ export const CATEGORIES = [
 ];
 
 export function getLocalMenu() {
-  const local = localStorage.getItem("maestro_menu");
+  const local = localStorage.getItem("maestro_menu_v2");
   if (local) {
     try {
       return JSON.parse(local);
@@ -159,5 +159,5 @@ export function getLocalMenu() {
 }
 
 export function saveMenuToLocal(menu) {
-  localStorage.setItem("maestro_menu", JSON.stringify(menu));
+  localStorage.setItem("maestro_menu_v2", JSON.stringify(menu));
 }

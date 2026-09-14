@@ -2296,7 +2296,7 @@ function syncActiveTableCart() {
 // ====================================================
 let lastMenuState = [];
 async function saveMenuToLocal(data) {
-  localStorage.setItem("maestro_menu", JSON.stringify(data));
+  localStorage.setItem("maestro_menu_v2", JSON.stringify(data));
   try {
     const snapshot = await getDocs(collection(db, "menu"));
     snapshot.forEach(async docSnap => {
@@ -2570,7 +2570,7 @@ function startRealtimeSync() {
     }
     
     // Cache to localStorage as backup
-    localStorage.setItem("maestro_menu", JSON.stringify(menu));
+    localStorage.setItem("maestro_menu_v2", JSON.stringify(menu));
     lastMenuState = JSON.parse(JSON.stringify(menu));
     
     const activePanel = document.querySelector(".view-panel.active");
