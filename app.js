@@ -3106,4 +3106,15 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Failed to log historical sales", "error");
     }
   });
+
+  // Admin backdoor to forcefully overwrite live Firebase menu with DEFAULT_MENU
+  if (window.location.search.includes('forceMenuSync')) {
+    setTimeout(() => {
+      saveMenuToLocal(DEFAULT_MENU).then(() => {
+        alert("Menu synced to Firebase live! You can now remove ?forceMenuSync=true from the URL.");
+      }).catch(err => {
+        alert("Failed to sync menu: " + err.message);
+      });
+    }, 3000);
+  }
 });
