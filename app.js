@@ -3108,7 +3108,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Auto-sync new menu prices to live Firebase database (Runs once per browser)
-  const MENU_VERSION = "v3_price_update";
+  const MENU_VERSION = "v4_menu_addition";
   if (localStorage.getItem("menu_sync_version") !== MENU_VERSION) {
     setTimeout(() => {
       saveMenuToLocal(DEFAULT_MENU).then(() => {
