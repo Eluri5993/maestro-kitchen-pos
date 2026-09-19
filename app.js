@@ -408,6 +408,22 @@ function renderDashboard() {
       `).join("");
     }
   }
+
+  // Render Recent Groceries Log List (running on all groceries)
+  const recentGrocRows = document.getElementById("dash-recent-groceries-rows");
+  const sortedGroc = [...groceries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  if (sortedGroc.length === 0) {
+    recentGrocRows.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No grocery logs yet</td></tr>`;
+  } else {
+    recentGrocRows.innerHTML = sortedGroc.map(g => `
+      <tr>
+        <td>${g.date}</td>
+        <td class="bold">${g.item}</td>
+        <td style="text-align: right;" class="bold color-gold">₹${g.cost.toLocaleString()}</td>
+        <td><span class="badge-buyer" style="padding:2px 6px; border-radius:4px; font-size:10px; background:rgba(0,0,0,0.06);">${g.buyer}</span></td>
+      </tr>
+    `).join("");
+  }
 }
 
 // ----------------------------------------------------
@@ -471,21 +487,6 @@ function renderTopSellingFull() {
     labelEl.innerText = `Showing: ${lbl}`;
   }
 
-  // Render Recent Groceries Log List (running on all groceries)
-  const recentGrocRows = document.getElementById("dash-recent-groceries-rows");
-  const sortedGroc = [...groceries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-  if (sortedGroc.length === 0) {
-    recentGrocRows.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No grocery logs yet</td></tr>`;
-  } else {
-    recentGrocRows.innerHTML = sortedGroc.map(g => `
-      <tr>
-        <td>${g.date}</td>
-        <td class="bold">${g.item}</td>
-        <td style="text-align: right;" class="bold color-gold">₹${g.cost.toLocaleString()}</td>
-        <td><span class="badge-buyer" style="padding:2px 6px; border-radius:4px; font-size:10px; background:rgba(0,0,0,0.06);">${g.buyer}</span></td>
-      </tr>
-    `).join("");
-  }
 }
 
 function initTopSellingView() {
