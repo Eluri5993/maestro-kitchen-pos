@@ -96,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initUsersView();
   initDashboardFilters();
   initDashboardClickHandlers();
+  initTopSellingView();
   
   // Global click listeners
   document.addEventListener("click", (e) => {
@@ -430,7 +431,7 @@ function renderTopSellingFull() {
     firstDay.setHours(0,0,0,0);
 
     filteredOrders = filteredOrders.filter(o => {
-      const orderDate = new Date(o.timestamp);
+      const orderDate = new Date(o.date);
       if (currentTsPeriod === "today") return orderDate.toDateString() === todayStr;
       if (currentTsPeriod === "week") return orderDate >= firstDay;
       if (currentTsPeriod === "month") return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
@@ -486,6 +487,72 @@ function renderTopSellingFull() {
     `).join("");
   }
 }
+
+function initTopSellingView() {
+  const topSellingHeader = document.getElementById("dash-top-selling-header");
+  const backToDashBtn = document.getElementById("btn-back-to-dashboard");
+  const views = document.querySelectorAll(".view-panel");
+
+  if (topSellingHeader) {
+    topSellingHeader.addEventListener("click", () => {
+      views.forEach(p => p.classList.remove("active"));
+      document.getElementById("view-top-selling").classList.add("active");
+      document.getElementById("view-title").innerText = "Top Selling Menu Items";
+      
+      currentTsPeriod = currentDashPeriod;
+      currentTsFromDate = currentDashFromDate;
+      currentTsToDate = currentDashToDate;
+      
+      document.querySelectorAll("#view-top-selling [data-period]").forEach(b => b.classList.remove("active"));
+      const activeBtn = document.getElementById(`ts-period-${currentTsPeriod}`);
+      if (activeBtn) activeBtn.classList.add("active");
+      
+      const customRangeDiv = document.getElementById("ts-custom-range");
+      if (currentTsPeriod === "custom") {
+        if (customRangeDiv) customRangeDiv.style.display = "flex";
+        const fromInput = document.getElementById("ts-date-from");
+        const toInput = document.getElementById("ts-date-to");
+        if (fromInput) fromInput.value = currentTsFromDate;
+        if (toInput) toInput.value = currentTsToDate;
+      } else {
+        if (customRangeDiv) customRangeDiv.style.display = "none";
+      }
+      
+      renderTopSellingFull();
+    });
+  }
+
+  if (backToDashBtn) {
+    backToDashBtn.addEventListener("click", () => {
+      views.forEach(p => p.classList.remove("active"));
+      document.getElementById("view-dashboard").classList.add("active");
+      document.getElementById("view-title").innerText = "Dashboard Overview";
+    });
+  }
+
+  document.querySelectorAll("#view-top-selling [data-period]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#view-top-selling [data-period]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTsPeriod = btn.getAttribute("data-period");
+      
+      const customRangeDiv = document.getElementById("ts-custom-range");
+      if (currentTsPeriod === "custom") {
+        if (customRangeDiv) customRangeDiv.style.display = "flex";
+      } else {
+        if (customRangeDiv) customRangeDiv.style.display = "none";
+      }
+      
+      renderTopSellingFull();
+    });
+  });
+
+  const tsDateFrom = document.getElementById("ts-date-from");
+  const tsDateTo = document.getElementById("ts-date-to");
+  if (tsDateFrom) tsDateFrom.addEventListener("change", (e) => { currentTsFromDate = e.target.value; renderTopSellingFull(); });
+  if (tsDateTo) tsDateTo.addEventListener("change", (e) => { currentTsToDate = e.target.value; renderTopSellingFull(); });
+}
+
 
 function renderDashboardCharts(metrics, period, fromDate, toDate) {
   // Chart 1: Sales Trend (Scoped to period)
@@ -3086,50 +3153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Top Selling Navigation
-  const topSellingHeader = document.getElementById("dash-top-selling-header");
-  const backToDashBtn = document.getElementById("btn-back-to-dashboard");
-  const views = document.querySelectorAll(".view-panel");
 
-  if (topSellingHeader) {
-    topSellingHeader.addEventListener("click", () => {
-      views.forEach(p => p.classList.remove("active"));
-      document.getElementById("view-top-selling").classList.add("active");
-      document.getElementById("view-title").innerText = "Top Selling Menu Items";
-      renderTopSellingFull();
-    });
-  }
-
-  if (backToDashBtn) {
-    backToDashBtn.addEventListener("click", () => {
-      views.forEach(p => p.classList.remove("active"));
-      document.getElementById("view-dashboard").classList.add("active");
-      document.getElementById("view-title").innerText = "Dashboard Overview";
-    });
-  }
-
-  // Top Selling Filters
-  document.querySelectorAll("#view-top-selling [data-period]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#view-top-selling [data-period]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentTsPeriod = btn.getAttribute("data-period");
-      
-      const customRangeDiv = document.getElementById("ts-custom-range");
-      if (currentTsPeriod === "custom") {
-        customRangeDiv.style.display = "flex";
-      } else {
-        customRangeDiv.style.display = "none";
-      }
-      
-      renderTopSellingFull();
-    });
-  });
-
-  const tsDateFrom = document.getElementById("ts-date-from");
-  const tsDateTo = document.getElementById("ts-date-to");
-  if (tsDateFrom) tsDateFrom.addEventListener("change", (e) => { currentTsFromDate = e.target.value; renderTopSellingFull(); });
-  if (tsDateTo) tsDateTo.addEventListener("change", (e) => { currentTsToDate = e.target.value; renderTopSellingFull(); });
 });
 
 // ==========================================
