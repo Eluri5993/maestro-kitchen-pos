@@ -471,9 +471,9 @@ function renderTopSellingFull() {
     labelEl.innerText = `Showing: ${lbl}`;
   }
 
-  // Render Recent Groceries Log List (running on filtered groceries!)
+  // Render Recent Groceries Log List (running on all groceries)
   const recentGrocRows = document.getElementById("dash-recent-groceries-rows");
-  const sortedGroc = [...filteredGroceries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const sortedGroc = [...groceries].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
   if (sortedGroc.length === 0) {
     recentGrocRows.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No grocery logs yet</td></tr>`;
   } else {
