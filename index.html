@@ -12,9 +12,14 @@
 </head>
 <body>
 
+  <!-- VIEW: Loading Session -->
+  <div id="loading-screen" style="display: flex; position: fixed; inset: 0; background: var(--bg-base); z-index: 10001; align-items: center; justify-content: center;">
+    <div style="font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--text-primary);">Checking session...</div>
+  </div>
+
   <!-- VIEW: Login Screen -->
-  <div id="login-screen" style="display: flex; position: fixed; inset: 0; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
-    <div class="chart-card" style="width: 380px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px; border: 1px solid rgba(255,255,255,0.05);">
+  <div id="login-screen" style="display: none; position: fixed; inset: 0; background:var(--bg-base); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+    <div class="chart-card" style="width: 380px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px; border:1px solid rgba(0,0,0,0.1);">
       <div style="text-align: center;">
         <div style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: var(--accent-gold); letter-spacing: 2px;">MAESTRO KITCHEN</div>
         <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase;">POS Billing Management</div>
@@ -23,11 +28,11 @@
       <form id="login-form" class="form-group" style="gap: 16px;">
         <div class="form-group">
           <label for="login-email">Email Address</label>
-          <input type="email" id="login-email" required placeholder="name@maestrokitchen.com" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:10px; color:white; width: 100%;">
+          <input type="email" id="login-email" required placeholder="name@maestrokitchen.com" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:10px; color:var(--text-primary); width: 100%;">
         </div>
         <div class="form-group">
           <label for="login-password">Password</label>
-          <input type="password" id="login-password" required placeholder="••••••••" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:10px; color:white; width: 100%;">
+          <input type="password" id="login-password" required placeholder="••••••••" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:10px; color:var(--text-primary); width: 100%;">
         </div>
         <button type="submit" class="submit-btn" style="width: 100%; padding: 12px; font-weight: 700; margin-top: 10px; font-size: 14px; letter-spacing: 0.5px;">Sign In to Terminal</button>
       </form>
@@ -44,11 +49,11 @@
       <form id="change-password-form" class="form-group" style="gap:12px;">
         <div class="form-group">
           <label for="new-password">New Password</label>
-          <input type="password" id="new-password" required minlength="6" placeholder="Min 6 characters" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;">
+          <input type="password" id="new-password" required minlength="6" placeholder="Min 6 characters" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;">
         </div>
         <div class="form-group">
           <label for="confirm-new-password">Confirm Password</label>
-          <input type="password" id="confirm-new-password" required minlength="6" placeholder="Repeat password" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;">
+          <input type="password" id="confirm-new-password" required minlength="6" placeholder="Repeat password" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;">
         </div>
         <button type="submit" class="submit-btn" style="width:100%;padding:10px;font-weight:600;margin-top:4px;">Update Password</button>
       </form>
@@ -145,7 +150,7 @@
         </div>
         
         <div class="header-actions">
-          <div class="user-profile-badge" id="user-profile-header" style="display:flex; align-items:center; gap:16px; margin-right:15px; border-right:1px solid rgba(255,255,255,0.05); padding-right:15px;">
+          <div class="user-profile-badge" id="user-profile-header" style="display:flex; align-items:center; gap:16px; margin-right:15px; border-right:1px solid rgba(0,0,0,0.1); padding-right:15px;">
             <div class="user-info" style="text-align:right;">
               <div class="user-name" id="header-user-name" style="font-weight:600; font-size:13px; color:var(--text-primary);">Name</div>
               <div class="user-role" id="header-user-role" style="font-size:10px; color:var(--accent-gold); text-transform:uppercase; font-weight:700;">Role</div>
@@ -165,11 +170,11 @@
       <!-- VIEW: Dashboard -->
       <div id="view-dashboard" class="view-panel active">
         <!-- Dashboard Period Filter Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; background: rgba(255,255,255,0.02); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; background: rgba(255,255,255,0.02); padding: 12px 16px; border-radius: 12px; border:1px solid rgba(0,0,0,0.1);">
           <div style="font-family: var(--font-heading); font-size: 16px; font-weight: 600; color: var(--accent-gold);">Dashboard Overview</div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <!-- Dropdown Filter -->
-            <select id="dash-filter-period" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px 12px; color:white; font-size:12px; font-family:var(--font-body); font-weight: 600; cursor: pointer;">
+            <select id="dash-filter-period" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:8px 12px; color:var(--text-primary); font-size:12px; font-family:var(--font-body); font-weight: 600; cursor: pointer;">
               <option value="today">Today</option>
               <option value="week">This Week</option>
               <option value="month">This Month</option>
@@ -179,9 +184,9 @@
             <!-- Custom Date Range Inputs (hidden by default) -->
             <div id="dash-custom-range" style="display: none; gap: 6px; align-items: center;">
               <label style="font-size: 11px; color: var(--text-secondary);">From:</label>
-              <input type="date" id="dash-date-from" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:6px; color:white; font-family:var(--font-body); font-size:12px;">
+              <input type="date" id="dash-date-from" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:6px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
               <label style="font-size: 11px; color: var(--text-secondary);">To:</label>
-              <input type="date" id="dash-date-to" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:6px; color:white; font-family:var(--font-body); font-size:12px;">
+              <input type="date" id="dash-date-to" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:6px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
               <button id="btn-dash-apply-custom" class="config-btn" style="background: var(--accent-gold); color: var(--bg-base); border: none; font-weight: bold; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; height: 32px;">Apply</button>
             </div>
           </div>
@@ -259,8 +264,8 @@
         <div class="analytics-split">
           <!-- Top Selling list -->
           <div class="chart-card">
-            <div class="chart-card-header">
-              <h2 class="chart-card-title">Top Selling Menu Items</h2>
+            <div class="chart-card-header" id="dash-top-selling-header" style="cursor: pointer;" title="View all top selling items">
+              <h2 class="chart-card-title">Top Selling Menu Items <i data-lucide="chevron-right" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-left: 4px; color: var(--text-secondary);"></i></h2>
             </div>
             <div class="orders-table-wrapper" style="margin-top: 0;">
               <table class="data-table">
@@ -339,7 +344,7 @@
             <div class="checkout-configs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-bottom: none; padding-bottom: 0;">
               <div>
                 <div class="config-section-title" style="margin-bottom: 6px;">Dining Option</div>
-                <select id="checkout-dining-mode" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:12px; width: 100%;">
+                <select id="checkout-dining-mode" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px; color:var(--text-primary); height:32px; font-family:var(--font-body); font-size:12px; width: 100%;">
                   <option value="Dine-In">Dine-In</option>
                   <option value="Takeaway">Takeaway</option>
                   <option value="Delivery">Delivery</option>
@@ -347,7 +352,7 @@
               </div>
               <div>
                 <div class="config-section-title" style="margin-bottom: 6px;">Payment Option</div>
-                <select id="checkout-pay-mode" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:12px; width: 100%;">
+                <select id="checkout-pay-mode" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px; color:var(--text-primary); height:32px; font-family:var(--font-body); font-size:12px; width: 100%;">
                   <option value="UPI">UPI</option>
                   <option value="Cash">Cash</option>
                   <option value="Card">Card</option>
@@ -362,7 +367,7 @@
                 <div>
                   <div class="config-section-title" style="margin-bottom: 6px;">Promo Code</div>
                   <div style="display: flex; gap: 6px;">
-                    <input type="text" id="checkout-promo-code" placeholder="E.g. SAVE10" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body); width: 100%; text-transform: uppercase;">
+                    <input type="text" id="checkout-promo-code" placeholder="E.g. SAVE10" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px; color:var(--text-primary); height:32px; font-size:12px; font-family:var(--font-body); width: 100%; text-transform: uppercase;">
                     <button id="btn-apply-promo" class="config-btn" style="background: var(--accent-gold); color: var(--bg-base); border: none; font-weight: bold; padding: 0 10px; height: 32px; width: auto; font-size: 11px; cursor: pointer;">Apply</button>
                   </div>
                 </div>
@@ -370,11 +375,11 @@
                 <div>
                   <div class="config-section-title" style="margin-bottom: 6px;">Bill Discount</div>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                    <select id="checkout-discount-type" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-family:var(--font-body); font-size:11px; width: 100%;">
+                    <select id="checkout-discount-type" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px; color:var(--text-primary); height:32px; font-family:var(--font-body); font-size:11px; width: 100%;">
                       <option value="percent">%</option>
                       <option value="flat">₹</option>
                     </select>
-                    <input type="number" id="checkout-discount-value" min="0" placeholder="Val" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body); width: 100%;">
+                    <input type="number" id="checkout-discount-value" min="0" placeholder="Val" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px; color:var(--text-primary); height:32px; font-size:12px; font-family:var(--font-body); width: 100%;">
                   </div>
                 </div>
               </div>
@@ -384,7 +389,7 @@
                 <span>Applied: <strong id="applied-promo-code-name">SAVE10</strong></span>
                 <span style="cursor: pointer; text-decoration: underline; color: var(--nonveg-red);" id="btn-remove-promo">Remove</span>
               </div>
-              <input type="text" id="checkout-discount-reason" placeholder="Reason (e.g. Manager Approval)" style="display: none; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px; color:white; height:32px; font-size:12px; font-family:var(--font-body); width: 100%;">
+              <input type="text" id="checkout-discount-reason" placeholder="Reason (e.g. Manager Approval)" style="display: none; background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px; color:var(--text-primary); height:32px; font-size:12px; font-family:var(--font-body); width: 100%;">
             </div>
             
             <!-- Totals Overview Box -->
@@ -478,20 +483,20 @@
             <form id="groceries-log-form" class="form-group" style="gap: 12px;">
               <div class="form-group">
                 <label for="groc-date">Date</label>
-                <input type="date" id="groc-date" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-family:var(--font-body); width: 100%;">
+                <input type="date" id="groc-date" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-family:var(--font-body); width: 100%;">
               </div>
               <div class="form-group">
                 <label for="groc-item">Item Name</label>
-                <input type="text" id="groc-item" placeholder="E.g. Raw Chicken, Tomato, Oil" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
+                <input type="text" id="groc-item" placeholder="E.g. Raw Chicken, Tomato, Oil" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%;">
               </div>
               <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
                 <div class="form-group">
                   <label for="groc-qty">Quantity</label>
-                  <input type="number" id="groc-qty" step="0.01" min="0.01" placeholder="E.g. 5" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
+                  <input type="number" id="groc-qty" step="0.01" min="0.01" placeholder="E.g. 5" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%;">
                 </div>
                 <div class="form-group">
                   <label for="groc-unit">Unit</label>
-                  <select id="groc-unit" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; width: 100%;">
+                  <select id="groc-unit" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; width: 100%;">
                     <option value="kg">kg</option>
                     <option value="g">grams</option>
                     <option value="ltr">liters</option>
@@ -505,17 +510,17 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div class="form-group">
                   <label for="groc-unit-cost">Unit Cost (₹)</label>
-                  <input type="number" id="groc-unit-cost" step="0.01" min="0" placeholder="E.g. 90" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
+                  <input type="number" id="groc-unit-cost" step="0.01" min="0" placeholder="E.g. 90" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%;">
                 </div>
                 <div class="form-group">
                   <label for="groc-cost">Total Cost (₹)</label>
-                  <input type="number" id="groc-cost" readonly style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%; cursor: not-allowed;" placeholder="Auto">
+                  <input type="number" id="groc-cost" readonly style="background:rgba(0,0,0,0.4); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%; cursor: not-allowed;" placeholder="Auto">
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div class="form-group">
                   <label for="groc-buyer">Purchased By</label>
-                  <select id="groc-buyer" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; width: 100%;">
+                  <select id="groc-buyer" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; width: 100%;">
                     <option value="Shiva">Shiva</option>
                     <option value="Vamshi">Vamshi</option>
                     <option value="Antony">Antony</option>
@@ -524,7 +529,7 @@
                 </div>
                 <div class="form-group">
                   <label for="groc-paymode">Pay Mode</label>
-                  <select id="groc-paymode" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; width: 100%;">
+                  <select id="groc-paymode" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; width: 100%;">
                     <option value="UPI">UPI</option>
                     <option value="Cash">Cash</option>
                     <option value="Card">Card</option>
@@ -533,7 +538,7 @@
               </div>
               <div class="form-group">
                 <label for="groc-note">Note / Invoice Ref</label>
-                <input type="text" id="groc-note" placeholder="E.g. Bill No #1092" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
+                <input type="text" id="groc-note" placeholder="E.g. Bill No #1092" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%;">
               </div>
               <button type="submit" class="submit-btn" style="margin-top: 4px; padding: 10px; width: 100%;">Log Purchase</button>
             </form>
@@ -543,15 +548,15 @@
           <div class="chart-card" style="padding: 16px; flex-grow: 1; display: flex; flex-direction: column;">
             <!-- Filter Bar -->
             <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-              <input type="text" id="groc-filter-search" placeholder="Search item name..." style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%;">
-              <select id="groc-filter-buyer" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%;">
+              <input type="text" id="groc-filter-search" placeholder="Search item name..." style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width: 100%;">
+              <select id="groc-filter-buyer" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width: 100%;">
                 <option value="All">All Buyers</option>
                 <option value="Shiva">Shiva</option>
                 <option value="Vamshi">Vamshi</option>
                 <option value="Antony">Antony</option>
                 <option value="Santhosh">Santhosh</option>
               </select>
-              <select id="groc-filter-period" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%;">
+              <select id="groc-filter-period" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width: 100%;">
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
                 <option value="month">This Month</option>
@@ -560,11 +565,11 @@
             </div>
 
             <!-- Custom Date Range Bar (hidden by default) -->
-            <div id="groc-custom-range" style="display: none; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+            <div id="groc-custom-range" style="display: none; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border:1px solid rgba(0,0,0,0.1);">
               <label style="font-size:12px; color:var(--text-secondary);">From:</label>
-              <input type="date" id="groc-date-from" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px; color:white; font-family:var(--font-body); font-size:12px;">
+              <input type="date" id="groc-date-from" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
               <label style="font-size:12px; color:var(--text-secondary);">To:</label>
-              <input type="date" id="groc-date-to" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px; color:white; font-family:var(--font-body); font-size:12px;">
+              <input type="date" id="groc-date-to" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
               <button id="btn-groc-apply-custom" class="config-btn" style="background: var(--accent-gold); color: var(--bg-base); border: none; font-weight: bold; padding: 6px 12px; height: auto; width: auto; font-size: 11px; cursor: pointer;">Apply</button>
             </div>
 
@@ -622,9 +627,9 @@
         <!-- Custom date range (hidden by default) -->
         <div id="order-custom-range" style="display:none; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
           <label style="font-size:12px; color:var(--text-secondary);">From:</label>
-          <input type="date" id="order-date-from" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px; color:white; font-family:var(--font-body); font-size:12px;">
+          <input type="date" id="order-date-from" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
           <label style="font-size:12px; color:var(--text-secondary);">To:</label>
-          <input type="date" id="order-date-to" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px; color:white; font-family:var(--font-body); font-size:12px;">
+          <input type="date" id="order-date-to" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
         </div>
 
         <!-- Text Search + Summary Bar -->
@@ -632,7 +637,7 @@
           <div class="pos-search-bar" style="flex:1; min-width:200px; margin:0;">
             <input type="text" id="order-search-input" placeholder="Search by Bill No, Mode, Payment...">
           </div>
-          <div id="orders-summary-bar" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:6px 14px; font-size:12px; white-space:nowrap; color:var(--text-secondary);">
+          <div id="orders-summary-bar" style="background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:6px 14px; font-size:12px; white-space:nowrap; color:var(--text-secondary);">
             <span id="orders-summary-count" style="font-weight:600; color:var(--text-primary);">0</span> orders &nbsp;|&nbsp; ₹<span id="orders-summary-total" style="font-weight:600; color:var(--accent-gold);">0</span>
           </div>
         </div>
@@ -709,11 +714,11 @@
             <input type="hidden" id="reserve-table-id">
             <div class="form-group">
               <label for="reserve-customer-name">Customer Name (Optional)</label>
-              <input type="text" id="reserve-customer-name" placeholder="E.g. Ravi Kumar" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;">
+              <input type="text" id="reserve-customer-name" placeholder="E.g. Ravi Kumar" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;">
             </div>
             <div class="form-group">
               <label for="reserve-time">Reserved Time (Optional)</label>
-              <input type="time" id="reserve-time" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;height:36px;font-family:var(--font-body);">
+              <input type="time" id="reserve-time" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;height:36px;font-family:var(--font-body);">
             </div>
             <div style="display:flex;gap:8px;margin-top:4px;">
               <button type="submit" class="submit-btn" style="flex:1;padding:10px;font-weight:600;">Mark Reserved</button>
@@ -737,39 +742,39 @@
               <input type="hidden" id="menu-item-id">
               <div class="form-group">
                 <label for="menu-item-name">Item Name</label>
-                <input type="text" id="menu-item-name" placeholder="E.g. Paneer Tikka" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width:100%;">
+                <input type="text" id="menu-item-name" placeholder="E.g. Paneer Tikka" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width:100%;">
               </div>
               <div class="form-group">
                 <label for="menu-item-category">Category</label>
-                <select id="menu-item-category" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; width:100%;">
+                <select id="menu-item-category" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; width:100%;">
                   <!-- loaded dynamically -->
                 </select>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div class="form-group">
                   <label for="menu-item-price">Price (₹)</label>
-                  <input type="number" id="menu-item-price" min="0" placeholder="E.g. 150" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width:100%;">
+                  <input type="number" id="menu-item-price" min="0" placeholder="E.g. 150" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width:100%;">
                 </div>
                 <div class="form-group">
                   <label for="menu-item-discount">Discount %</label>
-                  <input type="number" id="menu-item-discount" min="0" max="100" placeholder="E.g. 10" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width:100%;">
+                  <input type="number" id="menu-item-discount" min="0" max="100" placeholder="E.g. 10" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width:100%;">
                 </div>
               </div>
               <div class="form-group">
                 <label for="menu-item-image">Image URL (Optional)</label>
-                <input type="text" id="menu-item-image" placeholder="E.g. https://example.com/dish.jpg" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width:100%;">
+                <input type="text" id="menu-item-image" placeholder="E.g. https://example.com/dish.jpg" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width:100%;">
               </div>
               <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px;">
                 <input type="checkbox" id="menu-item-available" checked style="width: 16px; height: 16px; cursor: pointer;">
                 <label for="menu-item-available" style="cursor: pointer; margin: 0;">Item is Available</label>
               </div>
-              <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+              <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px;">
                 <input type="checkbox" id="menu-item-veg" checked style="width: 16px; height: 16px; cursor: pointer;">
                 <label for="menu-item-veg" style="cursor: pointer; margin: 0;">Vegetarian Dish</label>
               </div>
               <div style="display: flex; gap: 8px; margin-top: 4px;">
                 <button type="submit" class="submit-btn" style="flex-grow: 1; padding: 10px; font-weight:600;">Save Item</button>
-                <button type="button" id="btn-cancel-menu-edit" class="table-action-btn" style="display: none; background: rgba(255,255,255,0.05); padding: 10px;">Cancel</button>
+                <button type="button" id="btn-cancel-menu-edit" class="table-action-btn" style="display: none; background:rgba(0,0,0,0.04); padding: 10px;">Cancel</button>
               </div>
             </form>
           </div>
@@ -777,8 +782,8 @@
           <!-- Table Ledger for Menu Items -->
           <div class="chart-card" style="padding: 16px; flex-grow: 1; display: flex; flex-direction: column;">
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 12px;">
-              <input type="text" id="menu-filter-search" placeholder="Search item name..." style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width:100%;">
-              <select id="menu-filter-category" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width:100%;">
+              <input type="text" id="menu-filter-search" placeholder="Search item name..." style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width:100%;">
+              <select id="menu-filter-category" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width:100%;">
                 <option value="All">All Categories</option>
                 <!-- loaded dynamically -->
               </select>
@@ -853,7 +858,7 @@
               <div class="form-group">
                 <label for="bill-category-select">Bill Category / Name</label>
                 <div style="display: flex; gap: 8px;">
-                  <select id="bill-category-select" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; flex-grow: 1; font-family:var(--font-body); font-size:13px;">
+                  <select id="bill-category-select" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; flex-grow: 1; font-family:var(--font-body); font-size:13px;">
                     <option value="Electricity">Electricity</option>
                     <option value="Gas">Gas</option>
                     <option value="Rent">Rent</option>
@@ -862,29 +867,29 @@
                     <option value="Internet">Internet</option>
                     <option value="Custom">-- Add Custom Category --</option>
                   </select>
-                  <input type="text" id="bill-custom-category" placeholder="Custom Name" style="display: none; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 120px;">
+                  <input type="text" id="bill-custom-category" placeholder="Custom Name" style="display: none; background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 120px;">
                 </div>
               </div>
               
               <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
                 <div class="form-group">
                   <label for="bill-amount">Amount (₹)</label>
-                  <input type="number" id="bill-amount" min="0" placeholder="E.g. 5000" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
+                  <input type="number" id="bill-amount" min="0" placeholder="E.g. 5000" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%;">
                 </div>
                 <div class="form-group">
                   <label for="bill-period">Billing Period</label>
-                  <input type="month" id="bill-period" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%; height: 36px; font-family: var(--font-body);">
+                  <input type="month" id="bill-period" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%; height: 36px; font-family: var(--font-body);">
                 </div>
               </div>
               
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div class="form-group">
                   <label for="bill-due-date">Due Date</label>
-                  <input type="date" id="bill-due-date" required style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%; font-family: var(--font-body);">
+                  <input type="date" id="bill-due-date" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%; font-family: var(--font-body);">
                 </div>
                 <div class="form-group">
                   <label for="bill-status">Status</label>
-                  <select id="bill-status" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; width: 100%; font-family:var(--font-body); font-size:13px;">
+                  <select id="bill-status" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; width: 100%; font-family:var(--font-body); font-size:13px;">
                     <option value="Unpaid">Unpaid</option>
                     <option value="Paid">Paid</option>
                   </select>
@@ -895,12 +900,12 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                   <div class="form-group" style="margin: 0;">
                     <label for="bill-paid-date">Date Paid</label>
-                    <input type="date" id="bill-paid-date" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%; font-family: var(--font-body); height: 36px;">
+                    <input type="date" id="bill-paid-date" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%; font-family: var(--font-body); height: 36px;">
                   </div>
                   <div class="form-group" style="margin: 0;">
                     <label for="bill-paid-by-select">Paid By</label>
                     <div style="display: flex; gap: 8px;">
-                      <select id="bill-paid-by-select" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; height:36px; flex-grow: 1; font-family:var(--font-body); font-size:13px;">
+                      <select id="bill-paid-by-select" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); height:36px; flex-grow: 1; font-family:var(--font-body); font-size:13px;">
                         <option value="">-- Select --</option>
                         <option value="Vamshi">Vamshi</option>
                         <option value="Shiva">Shiva</option>
@@ -908,7 +913,7 @@
                         <option value="Antoni">Antoni</option>
                         <option value="Custom">-- Add Custom --</option>
                       </select>
-                      <input type="text" id="bill-custom-paid-by" placeholder="Custom Name" style="display: none; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100px;">
+                      <input type="text" id="bill-custom-paid-by" placeholder="Custom Name" style="display: none; background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100px;">
                     </div>
                   </div>
                 </div>
@@ -916,12 +921,12 @@
 
               <div class="form-group">
                 <label for="bill-notes">Notes</label>
-                <input type="text" id="bill-notes" placeholder="E.g. Paid to landlord Shiva" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; width: 100%;">
+                <input type="text" id="bill-notes" placeholder="E.g. Paid to landlord Shiva" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); width: 100%;">
               </div>
               
               <div style="display: flex; gap: 8px;">
                 <button type="submit" class="submit-btn" style="flex-grow: 1; padding: 10px; font-weight:600;">Save Bill</button>
-                <button type="button" id="btn-cancel-bill-edit" class="table-action-btn" style="display: none; background: rgba(255,255,255,0.05); padding: 10px;">Cancel</button>
+                <button type="button" id="btn-cancel-bill-edit" class="table-action-btn" style="display: none; background:rgba(0,0,0,0.04); padding: 10px;">Cancel</button>
               </div>
             </form>
           </div>
@@ -930,8 +935,8 @@
           <div class="chart-card" style="padding: 16px; flex-grow: 1; display: flex; flex-direction: column;">
             <!-- Filter Bar -->
             <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-              <input type="text" id="bill-filter-search" placeholder="Search notes..." style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%;">
-              <select id="bill-filter-category" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%; font-family:var(--font-body);">
+              <input type="text" id="bill-filter-search" placeholder="Search notes..." style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width: 100%;">
+              <select id="bill-filter-category" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width: 100%; font-family:var(--font-body);">
                 <option value="All">All Categories</option>
                 <option value="Electricity">Electricity</option>
                 <option value="Gas">Gas</option>
@@ -940,7 +945,7 @@
                 <option value="Water">Water</option>
                 <option value="Internet">Internet</option>
               </select>
-              <select id="bill-filter-status" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; color:white; font-size:12px; width: 100%; font-family:var(--font-body);">
+              <select id="bill-filter-status" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:8px; color:var(--text-primary); font-size:12px; width: 100%; font-family:var(--font-body);">
                 <option value="All">All Statuses</option>
                 <option value="Paid">Paid</option>
                 <option value="Unpaid">Unpaid</option>
@@ -1013,19 +1018,19 @@
             <input type="hidden" id="user-edit-id">
             <div class="form-group">
               <label for="user-edit-name">Display Name</label>
-              <input type="text" id="user-edit-name" required placeholder="E.g. Shiva Prasad" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;">
+              <input type="text" id="user-edit-name" required placeholder="E.g. Shiva Prasad" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;">
             </div>
             <div class="form-group">
               <label for="user-edit-email">Email Address</label>
-              <input type="email" id="user-edit-email" required placeholder="E.g. shiva@maestrokitchen.com" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;">
+              <input type="email" id="user-edit-email" required placeholder="E.g. shiva@maestrokitchen.com" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;">
             </div>
             <div class="form-group" id="user-edit-password-group">
               <label for="user-edit-password">Password</label>
-              <input type="password" id="user-edit-password" placeholder="Min 6 characters" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;">
+              <input type="password" id="user-edit-password" placeholder="Min 6 characters" style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;">
             </div>
             <div class="form-group">
               <label for="user-edit-role">Account Privilege Role</label>
-              <select id="user-edit-role" required style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;color:white;width:100%;height:36px;font-family:var(--font-body);">
+              <select id="user-edit-role" required style="background:var(--bg-surface-solid);border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:8px;color:var(--text-primary);width:100%;height:36px;font-family:var(--font-body);">
                 <option value="Staff">Staff (Operations)</option>
                 <option value="Admin">Admin (Full Control)</option>
               </select>
@@ -1112,6 +1117,54 @@
           </div>
         </div>
       </div>
+      <!-- VIEW: Top Selling Menu Items -->
+      <div id="view-top-selling" class="view-panel">
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
+          <button id="btn-back-to-dashboard" class="table-action-btn" style="align-self: flex-start; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.1); color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Back to Dashboard
+          </button>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h2 class="chart-card-title" style="margin: 0; font-size: 20px;">Complete Top Selling Items</h2>
+            <div id="top-selling-period-label" style="font-size: 13px; color: var(--text-secondary); background:rgba(0,0,0,0.04); padding: 4px 10px; border-radius: 4px; border:1px solid rgba(0,0,0,0.1);">
+              Showing: All Time
+            </div>
+          </div>
+          
+          <!-- Period Filter Buttons -->
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <button class="config-btn active" id="ts-period-all"    data-period="all">All Time</button>
+            <button class="config-btn"        id="ts-period-today"  data-period="today">Today</button>
+            <button class="config-btn"        id="ts-period-week"   data-period="week">This Week</button>
+            <button class="config-btn"        id="ts-period-month"  data-period="month">This Month</button>
+            <button class="config-btn"        id="ts-period-year"   data-period="year">This Year</button>
+            <button class="config-btn"        id="ts-period-custom" data-period="custom">Custom Range</button>
+          </div>
+
+          <!-- Custom date range (hidden by default) -->
+          <div id="ts-custom-range" style="display:none; gap:8px; align-items:center; flex-wrap:wrap;">
+            <label style="font-size:12px; color:var(--text-secondary);">From:</label>
+            <input type="date" id="ts-date-from" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
+            <label style="font-size:12px; color:var(--text-secondary);">To:</label>
+            <input type="date" id="ts-date-to" style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-family:var(--font-body); font-size:12px;">
+          </div>
+        </div>
+
+        <div class="orders-table-wrapper" style="margin-top: 0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th style="text-align: center;">Total Qty Sold</th>
+                <th style="text-align: right;">Total Revenue</th>
+              </tr>
+            </thead>
+            <tbody id="top-selling-full-rows">
+              <!-- Injected via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
     
   </div>
@@ -1129,7 +1182,7 @@
       <div id="modal-order-body" style="font-size: 13px; max-height: 400px; overflow-y: auto;">
         <!-- Injected via JS -->
       </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
         <button class="table-action-btn" id="btn-modal-reprint" style="padding: 10px; font-weight: 600;">
           <i data-lucide="printer" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
           Re-Print Receipt
@@ -1145,7 +1198,7 @@
   <!-- MODAL: Log Historical Sales -->
   <div class="modal-overlay" id="modal-historical-sales" style="display:none;">
     <div class="modal-content" style="width: 600px; max-width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
-      <div class="modal-header" style="flex-shrink: 0; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <div class="modal-header" style="flex-shrink: 0; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05);">
         <div class="modal-title">Itemized Historical Sales Entry</div>
         <button class="modal-close" onclick="document.getElementById('modal-historical-sales').classList.remove('active'); document.getElementById('modal-historical-sales').style.display='none';">&times;</button>
       </div>
@@ -1156,10 +1209,10 @@
         <form id="hist-sales-form" style="display: flex; flex-direction: column; gap: 16px; height: 100%;">
           <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
             <label for="hist-sales-date" style="font-weight: 600; color: var(--text-secondary);">Date of Sale</label>
-            <input type="date" id="hist-sales-date" required style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px; color: white; width: 100%; font-size: 15px; font-family: var(--font-body);">
+            <input type="date" id="hist-sales-date" required style="background:var(--bg-surface-solid); border:1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 10px; color:var(--text-primary); width: 100%; font-size: 15px; font-family: var(--font-body);">
           </div>
           
-          <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
+          <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h3 style="font-size: 14px; margin: 0; color: var(--accent-gold); font-weight: 600;">Order Items</h3>
               <button type="button" id="hist-add-item-btn" class="table-action-btn" style="color: var(--accent-gold); border-color: var(--accent-gold); padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px;">
@@ -1172,7 +1225,7 @@
             </div>
           </div>
           
-          <div style="background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: auto; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="background:rgba(0,0,0,0.04); padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: auto; border:1px solid rgba(0,0,0,0.1);">
             <span style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">Calculated Total:</span>
             <span id="hist-total-display" style="font-size: 22px; font-weight: 700; color: var(--accent-gold);">₹0.00</span>
           </div>
@@ -1197,7 +1250,7 @@
         </select>
       </div>
       
-      <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
+      <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Ingredient Requirements</span>
           <button class="table-action-btn" id="btn-recipe-add-ingredient" style="font-size: 11px; padding: 4px 8px;">+ Add Ingredient</button>
@@ -1207,8 +1260,8 @@
         </div>
       </div>
       
-      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
-        <button class="table-action-btn" style="background: rgba(255,255,255,0.05);" onclick="document.getElementById('modal-recipe-config').classList.remove('active')">Cancel</button>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+        <button class="table-action-btn" style="background:rgba(0,0,0,0.04);" onclick="document.getElementById('modal-recipe-config').classList.remove('active')">Cancel</button>
         <button class="submit-btn" id="btn-save-recipe">Save Recipe Details</button>
       </div>
     </div>

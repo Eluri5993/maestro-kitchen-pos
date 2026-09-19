@@ -46,6 +46,8 @@ let activeTableId = null;
 let currentUserProfile = null;
 let userDocUnsubscribe = null;
 let usersList = [];
+let initialAuthCheckDone = false;
+let currentActiveView = "dashboard";
 
 const DEFAULT_GROCERIES = [
   { id: "groc-1", date: "2026-07-10", item: "Raw Chicken", qty: 25, unit: "kg", cost: 6250, buyer: "Shiva", paymode: "UPI", note: "Anand Broiler" },
@@ -71,6 +73,9 @@ let promoCodes = [];
 let currentDashPeriod = "today";
 let currentDashFromDate = "";
 let currentDashToDate = "";
+let currentTsPeriod = "all";
+let currentTsFromDate = "";
+let currentTsToDate = "";
 
 // Chart.js instances
 let hourlyChartInstance = null;
@@ -229,6 +234,8 @@ function initViewRouting() {
     item.addEventListener("click", (e) => {
       e.preventDefault();
       const view = item.getAttribute("data-view");
+      currentActiveView = view;
+      localStorage.setItem("maestro_active_view", view);
       
       navItems.forEach(n => n.classList.remove("active"));
       item.classList.add("active");
@@ -295,6 +302,11 @@ function renderDashboard() {
   const period = currentDashPeriod;
   const fromDate = currentDashFromDate;
   const toDate = currentDashToDate;
+  
+  // Re-render top selling if it is active
+  if (document.getElementById("view-top-selling")?.classList.contains("active")) {
+    renderTopSellingFull();
+  }
 
   // Filter orders and groceries by date range
   const now = new Date();
@@ -381,16 +393,80 @@ function renderDashboard() {
   // Render Top Selling Items Table (running on filtered orders!)
   const topSelling = getTopSellingItems(filteredOrders, 5);
   const topRows = document.getElementById("dash-top-selling-rows");
-  if (topSelling.length === 0) {
-    topRows.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No sales data logged yet</td></tr>`;
-  } else {
-    topRows.innerHTML = topSelling.map(item => `
-      <tr>
-        <td>${item.name}</td>
-        <td style="text-align: center;" class="bold">${item.qty}</td>
-        <td style="text-align: right;" class="bold color-gold">₹${item.revenue.toLocaleString()}</td>
-      </tr>
-    `).join("");
+  if (topRows) {
+    if (topSelling.length === 0) {
+      topRows.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No sales data logged yet</td></tr>`;
+    } else {
+      topRows.innerHTML = topSelling.map(item => `
+        <tr>
+          <td>${item.name}</td>
+          <td style="text-align: center;" class="bold">${item.qty}</td>
+          <td style="text-align: right;" class="bold color-gold">₹${item.revenue.toLocaleString()}</td>
+        </tr>
+      `).join("");
+    }
+  }
+}
+
+// ----------------------------------------------------
+// VIEW: Top Selling Full Panel
+// ----------------------------------------------------
+function renderTopSellingFull() {
+  const tsRows = document.getElementById("top-selling-full-rows");
+  if (!tsRows) return;
+  tsRows.innerHTML = "";
+  
+  let filteredOrders = [...orders];
+  if (currentTsPeriod !== "all") {
+    const now = new Date();
+    const todayStr = now.toDateString();
+    
+    // get start of week
+    const d = new Date(now);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const firstDay = new Date(d.setDate(diff));
+    firstDay.setHours(0,0,0,0);
+
+    filteredOrders = filteredOrders.filter(o => {
+      const orderDate = new Date(o.timestamp);
+      if (currentTsPeriod === "today") return orderDate.toDateString() === todayStr;
+      if (currentTsPeriod === "week") return orderDate >= firstDay;
+      if (currentTsPeriod === "month") return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+      if (currentTsPeriod === "year") return orderDate.getFullYear() === now.getFullYear();
+      if (currentTsPeriod === "custom") {
+        let matches = true;
+        if (currentTsFromDate) matches = matches && orderDate >= new Date(currentTsFromDate + "T00:00:00");
+        if (currentTsToDate) matches = matches && orderDate <= new Date(currentTsToDate + "T23:59:59");
+        return matches;
+      }
+      return true;
+    });
+  }
+
+  const topItems = getTopSellingItems(filteredOrders, 9999);
+  topItems.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.name}</td>
+      <td style="text-align: center;">${item.qty}</td>
+      <td style="text-align: right; color: var(--accent-gold); font-weight: 600;">₹${item.revenue.toFixed(2)}</td>
+    `;
+    tsRows.appendChild(tr);
+  });
+  
+  // Update Label
+  const labelEl = document.getElementById("top-selling-period-label");
+  if (labelEl) {
+    let lbl = "All Time";
+    if (currentTsPeriod === "today") lbl = "Today";
+    else if (currentTsPeriod === "week") lbl = "This Week";
+    else if (currentTsPeriod === "month") lbl = "This Month";
+    else if (currentTsPeriod === "year") lbl = "This Year";
+    else if (currentTsPeriod === "custom") {
+      lbl = currentTsFromDate && currentTsToDate ? `${currentTsFromDate} to ${currentTsToDate}` : "Custom Range";
+    }
+    labelEl.innerText = `Showing: ${lbl}`;
   }
 
   // Render Recent Groceries Log List (running on filtered groceries!)
@@ -404,7 +480,7 @@ function renderDashboard() {
         <td>${g.date}</td>
         <td class="bold">${g.item}</td>
         <td style="text-align: right;" class="bold color-gold">₹${g.cost.toLocaleString()}</td>
-        <td><span class="badge-buyer" style="padding:2px 6px; border-radius:4px; font-size:10px; background:rgba(255,255,255,0.06);">${g.buyer}</span></td>
+        <td><span class="badge-buyer" style="padding:2px 6px; border-radius:4px; font-size:10px; background:rgba(0,0,0,0.06);">${g.buyer}</span></td>
       </tr>
     `).join("");
   }
@@ -1229,9 +1305,9 @@ function initOrdersView() {
   });
 
   // Bind Period Filters
-  document.querySelectorAll("[data-period]").forEach(btn => {
+  document.querySelectorAll("#view-orders [data-period]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-period]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("#view-orders [data-period]").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       const period = btn.getAttribute("data-period");
       
@@ -2437,6 +2513,12 @@ function initAuth() {
   }
 
   onAuthStateChanged(auth, async (user) => {
+    if (!initialAuthCheckDone) {
+      initialAuthCheckDone = true;
+      const ls = document.getElementById("loading-screen");
+      if (ls) ls.style.display = "none";
+    }
+
     if (user) {
       if (userDocUnsubscribe) userDocUnsubscribe();
       userDocUnsubscribe = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
@@ -2468,6 +2550,7 @@ function initAuth() {
           
           applyRoleAccess(profile.role);
           startRealtimeSync();
+          redirectUserAfterLogin();
         }
       }, (err) => {
         console.error("Firestore user doc error", err);
@@ -2518,6 +2601,16 @@ async function seedDefaultAdmin() {
 
 function redirectUserAfterLogin() {
   if (!currentUserProfile) return;
+  
+  const savedView = localStorage.getItem("maestro_active_view");
+  if (savedView) {
+    const savedNavItem = document.querySelector(`.nav-item[data-view="${savedView}"]`);
+    if (savedNavItem) {
+      savedNavItem.click();
+      return;
+    }
+  }
+
   if (currentUserProfile.role === "Admin") {
     document.querySelector('.nav-item[data-view="dashboard"]').click();
   } else {
@@ -2849,7 +2942,7 @@ function renderUsersList() {
         <tr>
           <td class="bold">${u.name}</td>
           <td>${u.email}</td>
-          <td><span class="badge-buyer" style="padding:2px 6px; border-radius:4px; font-size:10px; background:rgba(255,255,255,0.06);">${u.role}</span></td>
+          <td><span class="badge-buyer" style="padding:2px 6px; border-radius:4px; font-size:10px; background:rgba(0,0,0,0.06);">${u.role}</span></td>
           <td><span class="badge-status ${statusClass}">${u.status}</span></td>
           <td style="text-align: center;">
             ${actionButtons}
@@ -2953,6 +3046,51 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  // Top Selling Navigation
+  const topSellingHeader = document.getElementById("dash-top-selling-header");
+  const backToDashBtn = document.getElementById("btn-back-to-dashboard");
+  const views = document.querySelectorAll(".view-panel");
+
+  if (topSellingHeader) {
+    topSellingHeader.addEventListener("click", () => {
+      views.forEach(p => p.classList.remove("active"));
+      document.getElementById("view-top-selling").classList.add("active");
+      document.getElementById("view-title").innerText = "Top Selling Menu Items";
+      renderTopSellingFull();
+    });
+  }
+
+  if (backToDashBtn) {
+    backToDashBtn.addEventListener("click", () => {
+      views.forEach(p => p.classList.remove("active"));
+      document.getElementById("view-dashboard").classList.add("active");
+      document.getElementById("view-title").innerText = "Dashboard Overview";
+    });
+  }
+
+  // Top Selling Filters
+  document.querySelectorAll("#view-top-selling [data-period]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#view-top-selling [data-period]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTsPeriod = btn.getAttribute("data-period");
+      
+      const customRangeDiv = document.getElementById("ts-custom-range");
+      if (currentTsPeriod === "custom") {
+        customRangeDiv.style.display = "flex";
+      } else {
+        customRangeDiv.style.display = "none";
+      }
+      
+      renderTopSellingFull();
+    });
+  });
+
+  const tsDateFrom = document.getElementById("ts-date-from");
+  const tsDateTo = document.getElementById("ts-date-to");
+  if (tsDateFrom) tsDateFrom.addEventListener("change", (e) => { currentTsFromDate = e.target.value; renderTopSellingFull(); });
+  if (tsDateTo) tsDateTo.addEventListener("change", (e) => { currentTsToDate = e.target.value; renderTopSellingFull(); });
 });
 
 // ==========================================
@@ -3106,15 +3244,4 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Failed to log historical sales", "error");
     }
   });
-
-  // Auto-sync new menu prices to live Firebase database (Runs once per browser)
-  const MENU_VERSION = "v5_fix_availability";
-  if (localStorage.getItem("menu_sync_version") !== MENU_VERSION) {
-    setTimeout(() => {
-      saveMenuToLocal(DEFAULT_MENU).then(() => {
-        localStorage.setItem("menu_sync_version", MENU_VERSION);
-        console.log("New prices automatically synced to Firebase live!");
-      }).catch(err => console.error("Sync failed:", err));
-    }, 4000);
-  }
 });
