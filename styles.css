@@ -118,11 +118,9 @@ sidebar {
 .brand-name {
   font-family: var(--font-heading);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.5px;
-  background: linear-gradient(120deg, #fff, var(--accent-gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-gold);
 }
 
 .brand-subtitle {
