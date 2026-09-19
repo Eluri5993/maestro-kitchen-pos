@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAuth();
   initUsersView();
   initDashboardFilters();
+  initDashboardClickHandlers();
   
   // Global click listeners
   document.addEventListener("click", (e) => {
@@ -612,6 +613,44 @@ function initDashboardFilters() {
       triggerDashboardUpdate();
     });
   }
+}
+
+function initDashboardClickHandlers() {
+  const cardSales = document.getElementById("dash-card-sales");
+  const cardBills = document.getElementById("dash-card-bills");
+  const cardAov = document.getElementById("dash-card-aov");
+  const cardGroceries = document.getElementById("dash-card-groceries");
+
+  const navToOrders = () => {
+    const ordersNav = document.querySelector('.nav-item[data-view="orders"]');
+    if (ordersNav) ordersNav.click();
+    
+    const periodBtn = document.getElementById(`order-period-${currentDashPeriod}`);
+    if (periodBtn) {
+      periodBtn.click();
+    }
+    
+    if (currentDashPeriod === "custom") {
+      const fromInput = document.getElementById("order-date-from");
+      const toInput = document.getElementById("order-date-to");
+      if (fromInput && toInput) {
+        fromInput.value = currentDashFromDate;
+        toInput.value = currentDashToDate;
+        fromInput.dispatchEvent(new Event("change"));
+        toInput.dispatchEvent(new Event("change"));
+      }
+    }
+  };
+
+  const navToGroceries = () => {
+    const grocNav = document.querySelector('.nav-item[data-view="inventory"]');
+    if (grocNav) grocNav.click();
+  };
+
+  if (cardSales) cardSales.addEventListener("click", navToOrders);
+  if (cardBills) cardBills.addEventListener("click", navToOrders);
+  if (cardAov) cardAov.addEventListener("click", navToOrders);
+  if (cardGroceries) cardGroceries.addEventListener("click", navToGroceries);
 }
 
 function triggerDashboardUpdate() {

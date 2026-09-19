@@ -522,8 +522,8 @@ header {
 
 /* POS Cart / Checkout Panel */
 .pos-cart-panel {
-  background: rgba(10, 15, 30, 0.55);
-  border-left: var(--glass-border);
+  background: var(--bg-surface);
+  border-left: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -730,7 +730,7 @@ header {
 /* Bill calculations section */
 .bill-summary-details {
   padding: 16px;
-  background: rgba(5, 8, 18, 0.5);
+  background: rgba(0, 0, 0, 0.02);
   border-top: var(--glass-border);
   display: flex;
   flex-direction: column;
